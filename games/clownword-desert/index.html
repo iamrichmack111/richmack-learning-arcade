@@ -1,0 +1,2087 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#c7772d">
+  <meta name="description" content="ClownWord Desert 2.0 is a 2D open-world sight-word spelling game with student profiles, automatic grading, bosses, reports, and saved progress.">
+  <meta name="author" content="Richmack">
+  <meta property="og:title" content="ClownWord Desert 2.0">
+  <meta property="og:description" content="Spell words to defeat clown hordes, seal circus tents, and earn a saved grade.">
+  <meta property="og:type" content="website">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <title>ClownWord Desert 2.0</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #1f140d;
+      --panel: rgba(31, 20, 13, .96);
+      --panel2: rgba(49, 31, 18, .96);
+      --cream: #fff0c7;
+      --muted: #c9ad7f;
+      --gold: #ffd166;
+      --red: #ef476f;
+      --green: #7ee081;
+      --blue: #57c7ff;
+      --purple: #c68cff;
+      --border: rgba(255,255,255,.16);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: #17100b;
+      font-family: Inter, ui-rounded, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    body.high-contrast {
+      --panel: rgba(0,0,0,.98);
+      --panel2: rgba(0,0,0,.98);
+      --cream: #fff;
+      --muted: #fff;
+      --gold: #ffff00;
+      --blue: #00ffff;
+      --green: #00ff55;
+      --red: #ff3b3b;
+      --border: #fff;
+    }
+    button, input, select, textarea { font: inherit; }
+    button { touch-action: manipulation; }
+    canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      background: #d99a3d;
+    }
+    #overlay {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+    }
+    .panel {
+      pointer-events: auto;
+      position: absolute;
+      inset: 50% auto auto 50%;
+      transform: translate(-50%, -50%);
+      width: min(860px, calc(100vw - 28px));
+      max-height: calc(100vh - 24px);
+      overflow: auto;
+      padding: 26px;
+      border: 2px solid var(--border);
+      border-radius: 22px;
+      color: var(--cream);
+      background:
+        radial-gradient(circle at 20% 0%, rgba(255,209,102,.14), transparent 38%),
+        linear-gradient(180deg, var(--panel2), var(--panel));
+      box-shadow: 0 28px 90px rgba(0,0,0,.6);
+    }
+    .hidden { display: none !important; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 {
+      margin-bottom: 8px;
+      text-align: center;
+      font-size: clamp(38px, 7vw, 72px);
+      line-height: .93;
+      letter-spacing: -3px;
+      color: var(--gold);
+      text-shadow: 0 4px 0 #7f3d1e, 0 10px 26px rgba(0,0,0,.55);
+    }
+    h2 { color: var(--gold); }
+    .tagline {
+      max-width: 700px;
+      margin: 0 auto 18px;
+      text-align: center;
+      color: #f7dfad;
+      font-size: 17px;
+      line-height: 1.45;
+    }
+    .form-grid, .report-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 12px;
+    }
+    .field {
+      display: grid;
+      gap: 6px;
+      text-align: left;
+    }
+    .field.full { grid-column: 1 / -1; }
+    .field label, .small-label {
+      color: #f4d79c;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: .5px;
+    }
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      color: white;
+      background: rgba(0,0,0,.28);
+      outline: none;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(87,199,255,.16);
+    }
+    textarea { min-height: 82px; resize: vertical; }
+    .checks {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 12px 0;
+    }
+    .checks label {
+      display: inline-flex;
+      gap: 7px;
+      align-items: center;
+      color: #f1dcb7;
+    }
+    .checks input { width: auto; }
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .btn {
+      appearance: none;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 11px 17px;
+      cursor: pointer;
+      font-weight: 900;
+      color: white;
+      background: rgba(255,255,255,.08);
+    }
+    .btn:hover { filter: brightness(1.12); transform: translateY(-1px); }
+    .btn:active { transform: translateY(2px); }
+    .btn.primary {
+      border: 0;
+      color: #27160c;
+      background: linear-gradient(#ffe17f, #f4af39);
+      box-shadow: 0 5px 0 #96501f;
+    }
+    .btn.danger { background: #8f2742; }
+    .btn.success { background: #2c7540; }
+    .mini-note {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .returning {
+      margin: 12px 0;
+      padding: 11px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(126,224,129,.08);
+      color: #d9ffdb;
+    }
+    .instruction-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: 10px;
+      margin: 14px 0;
+    }
+    .instruction-card {
+      padding: 12px;
+      min-height: 105px;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      background: rgba(255,255,255,.055);
+      color: #ead5ad;
+      line-height: 1.4;
+    }
+    .instruction-card b {
+      display: block;
+      margin-bottom: 4px;
+      color: white;
+    }
+    #spellPanel {
+      pointer-events: auto;
+      position: absolute;
+      left: 50%;
+      bottom: max(12px, env(safe-area-inset-bottom));
+      transform: translateX(-50%);
+      width: min(650px, calc(100vw - 20px));
+      padding: 10px 12px 12px;
+      border: 2px solid var(--border);
+      border-radius: 17px;
+      background: rgba(25, 15, 9, .94);
+      color: white;
+      text-align: center;
+      box-shadow: 0 12px 40px rgba(0,0,0,.48);
+      transition: transform .15s, border-color .15s;
+    }
+    #spellPanel.focused {
+      border-color: var(--blue);
+      transform: translateX(-50%) scale(1.02);
+    }
+    .spell-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    #spellModeLabel {
+      color: var(--gold);
+      font-size: 12px;
+      font-weight: 1000;
+      letter-spacing: 1.5px;
+    }
+    #selectedLabel {
+      color: #d7c09a;
+      font-size: 12px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    #typedWord {
+      min-height: 38px;
+      margin-top: 5px;
+      padding: 4px 9px;
+      border-radius: 9px;
+      background: rgba(255,255,255,.08);
+      color: var(--blue);
+      font-size: clamp(24px, 4vw, 36px);
+      font-weight: 1000;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+    #feedbackLine {
+      min-height: 20px;
+      margin-top: 4px;
+      color: #d7c09a;
+      font-size: 12px;
+    }
+    #spellButtons {
+      display: flex;
+      justify-content: center;
+      gap: 7px;
+      margin-top: 6px;
+    }
+    #spellButtons .btn { padding: 6px 10px; font-size: 12px; }
+    #statusMessage {
+      position: absolute;
+      top: 18%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      max-width: 90vw;
+      text-align: center;
+      font-size: clamp(24px, 5vw, 50px);
+      font-weight: 1000;
+      color: white;
+      text-shadow: 0 4px 0 rgba(0,0,0,.4), 0 0 22px rgba(255,255,255,.25);
+      opacity: 0;
+      transition: opacity .15s;
+      pointer-events: none;
+    }
+    .corner-controls {
+      pointer-events: auto;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: flex;
+      gap: 6px;
+    }
+    .circle-btn {
+      width: 42px;
+      height: 42px;
+      padding: 0;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: rgba(24,16,11,.82);
+      color: white;
+      cursor: pointer;
+      font-size: 17px;
+    }
+    .metric {
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      background: rgba(255,255,255,.05);
+    }
+    .metric .value {
+      display: block;
+      color: white;
+      font-size: 25px;
+      font-weight: 1000;
+    }
+    .metric .label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .grade-badge {
+      display: grid;
+      place-items: center;
+      width: 128px;
+      height: 128px;
+      margin: 4px auto 18px;
+      border: 6px solid var(--gold);
+      border-radius: 50%;
+      color: var(--gold);
+      background: rgba(255,209,102,.08);
+      font-size: 48px;
+      font-weight: 1000;
+    }
+    .missed-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin: 8px 0 0;
+    }
+    .word-chip {
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: rgba(239,71,111,.15);
+      border: 1px solid rgba(239,71,111,.35);
+      color: #ffdbe4;
+      font-weight: 800;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th, td {
+      padding: 8px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+    th { color: var(--gold); }
+    #touchControls {
+      pointer-events: auto;
+      position: absolute;
+      left: 16px;
+      bottom: 118px;
+      display: none;
+      grid-template-columns: repeat(3, 54px);
+      grid-template-rows: repeat(3, 54px);
+      gap: 4px;
+    }
+    .touch-key {
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      color: white;
+      background: rgba(24,16,11,.75);
+      font-size: 22px;
+      font-weight: 900;
+      touch-action: none;
+    }
+    #onscreenKeyboard {
+      pointer-events: auto;
+      position: absolute;
+      left: 50%;
+      bottom: 127px;
+      transform: translateX(-50%);
+      width: min(720px, calc(100vw - 14px));
+      display: none;
+      grid-template-columns: repeat(10, minmax(24px, 1fr));
+      gap: 4px;
+      padding: 7px;
+      border-radius: 13px;
+      background: rgba(20,12,7,.92);
+    }
+    #onscreenKeyboard button {
+      min-height: 37px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      color: white;
+      background: rgba(255,255,255,.09);
+      font-weight: 900;
+    }
+    #onscreenKeyboard .wide { grid-column: span 2; }
+    @media (pointer: coarse), (max-width: 700px) {
+      #touchControls { display: grid; }
+      #onscreenKeyboard.focused { display: grid; }
+      .instruction-grid { grid-template-columns: 1fr; }
+      .form-grid, .report-grid { grid-template-columns: 1fr; }
+      .field.full { grid-column: auto; }
+      .panel { padding: 18px; }
+      #spellPanel { bottom: 8px; }
+    }
+    @media print {
+      canvas, #spellPanel, .corner-controls, #touchControls, #onscreenKeyboard, #statusMessage,
+      #startPanel, #instructionsPanel, #pausePanel { display: none !important; }
+      #reportPanel {
+        display: block !important;
+        position: static;
+        transform: none;
+        width: 100%;
+        max-height: none;
+        color: #000;
+        background: #fff;
+        box-shadow: none;
+      }
+      #reportPanel * { color: #000 !important; }
+      .button-row { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="game" aria-label="ClownWord Desert educational spelling game"></canvas>
+
+  <div id="overlay">
+    <section id="startPanel" class="panel">
+      <h1>CLOWNWORD<br>DESERT 2.0</h1>
+      <p class="tagline">
+        Enter a student name, choose a level, then spell the words carried by clown villains.
+        Every session receives an automatic grade and is saved privately in this browser.
+      </p>
+
+      <div class="form-grid">
+        <div class="field">
+          <label for="studentName">Student name</label>
+          <input id="studentName" maxlength="32" autocomplete="name" placeholder="Enter a name" required>
+        </div>
+        <div class="field">
+          <label for="gradeSelect">Sight-word level</label>
+          <select id="gradeSelect">
+            <option value="preK">Pre-K / Kindergarten</option>
+            <option value="grade1" selected>Grade 1</option>
+            <option value="grade2">Grade 2</option>
+            <option value="grade3">Grade 3+</option>
+            <option value="mixed">Mixed Challenge</option>
+            <option value="custom">Custom Word List</option>
+          </select>
+        </div>
+        <div id="customField" class="field full hidden">
+          <label for="customWords">Custom words</label>
+          <textarea id="customWords" placeholder="Enter at least five words, separated by spaces, commas, or new lines."></textarea>
+        </div>
+      </div>
+
+      <div id="returningSummary" class="returning hidden"></div>
+
+      <div class="checks">
+        <label><input id="speechSetting" type="checkbox" checked> Pronounce target words</label>
+        <label><input id="reducedMotionSetting" type="checkbox"> Reduced motion</label>
+        <label><input id="contrastSetting" type="checkbox"> High contrast</label>
+      </div>
+
+      <div class="instruction-grid">
+        <div class="instruction-card"><b>1. Move</b>Use arrow keys. Hold Shift to sprint. On touch screens, use the direction pad.</div>
+        <div class="instruction-card"><b>2. Focus and spell</b>Press Space or begin typing. Time slows while you spell. Press Enter to cast.</div>
+        <div class="instruction-card"><b>3. Target enemies</b>Each clown carries a word. Type that exact word to defeat it. Nearby matching targets glow.</div>
+        <div class="instruction-card"><b>4. Seal tents</b>Approach a tent and spell its gold seal word. Finish its progress to summon a Ringmaster boss.</div>
+        <div class="instruction-card"><b>5. Learn from errors</b>Wrong letters are explained, words are pronounced, and missed words return later for review.</div>
+        <div class="instruction-card"><b>6. Earn a grade</b>Your grade combines 70% accuracy, 20% completion, and 10% word mastery.</div>
+      </div>
+
+      <div class="button-row">
+        <button id="startButton" class="btn primary">Start Graded Adventure</button>
+        <button id="instructionsButton" class="btn">Full Instructions</button>
+        <button id="recordsButton" class="btn">Student Records</button>
+      </div>
+      <p class="mini-note">
+        Progress is stored only in this browser with localStorage. No account or internet connection is required.
+      </p>
+    </section>
+
+    <section id="instructionsPanel" class="panel hidden">
+      <h2>How to Play</h2>
+      <h3>Core controls</h3>
+      <table>
+        <tr><th>Action</th><th>Keyboard</th><th>Touch</th></tr>
+        <tr><td>Move</td><td>Arrow keys</td><td>Direction pad</td></tr>
+        <tr><td>Sprint</td><td>Hold Shift</td><td>Hold the center RUN button</td></tr>
+        <tr><td>Enter spelling focus</td><td>Space or any letter</td><td>Tap SPELL</td></tr>
+        <tr><td>Submit word</td><td>Enter</td><td>CAST</td></tr>
+        <tr><td>Correct a letter</td><td>Backspace</td><td>⌫</td></tr>
+        <tr><td>Hear selected word</td><td>H</td><td>HEAR</td></tr>
+        <tr><td>Cancel spelling focus</td><td>Escape</td><td>CANCEL</td></tr>
+        <tr><td>Pause</td><td>P</td><td>Pause button</td></tr>
+      </table>
+
+      <h3>Enemy types</h3>
+      <p>
+        <strong>Runners</strong> move quickly with shorter words.
+        <strong>Tanks</strong> require two correct spells.
+        <strong>Mimes</strong> hide their word after a few seconds.
+        <strong>Jugglers</strong> scramble their display while keeping the real word pronounceable.
+        <strong>Balloon clowns</strong> drift over the desert.
+        <strong>Ringmasters</strong> are tent bosses with multiple word phases.
+      </p>
+
+      <h3>Grading and saved records</h3>
+      <p>
+        A session score is calculated as 70% spelling accuracy, 20% percentage of tents sealed,
+        and 10% mastery. Mastery measures how many attempted words were eventually spelled
+        correctly. The report includes the student name, level, grade, accuracy, attempts,
+        correct answers, missed words, tents sealed, bosses defeated, best combo, and elapsed time.
+      </p>
+
+      <h3>Review system</h3>
+      <p>
+        Missed words are added to a review queue and appear more often later in the same session.
+        The saved student profile also remembers frequently missed words for future sessions.
+      </p>
+
+      <div class="button-row">
+        <button class="btn primary close-instructions">Return</button>
+      </div>
+    </section>
+
+    <section id="recordsPanel" class="panel hidden">
+      <h2>Student Records</h2>
+      <div id="recordsContent"></div>
+      <div class="button-row">
+        <button id="exportAllButton" class="btn success">Export All Records</button>
+        <button id="clearRecordsButton" class="btn danger">Clear All Records</button>
+        <button class="btn primary close-records">Return</button>
+      </div>
+    </section>
+
+    <section id="pausePanel" class="panel hidden">
+      <h2>Game Paused</h2>
+      <p class="tagline">The desert and grading timer are paused.</p>
+      <div class="button-row">
+        <button id="resumeButton" class="btn primary">Resume</button>
+        <button id="endSessionButton" class="btn danger">End and Grade Session</button>
+        <button id="pauseInstructionsButton" class="btn">Instructions</button>
+      </div>
+    </section>
+
+    <section id="reportPanel" class="panel hidden">
+      <h2 id="reportTitle">Session Report</h2>
+      <div id="gradeBadge" class="grade-badge">A</div>
+      <p id="reportSummary" class="tagline"></p>
+      <div id="reportMetrics" class="report-grid"></div>
+
+      <h3>Grading breakdown</h3>
+      <div id="gradeBreakdown"></div>
+
+      <h3>Words needing review</h3>
+      <div id="missedWordsList" class="missed-list"></div>
+
+      <h3>Recent student history</h3>
+      <div id="studentHistory"></div>
+
+      <div class="button-row">
+        <button id="downloadReportButton" class="btn success">Download CSV Report</button>
+        <button id="printReportButton" class="btn">Print Report</button>
+        <button id="playAgainButton" class="btn primary">Play Again</button>
+      </div>
+    </section>
+
+    <div id="spellPanel" class="hidden">
+      <div class="spell-top">
+        <span id="spellModeLabel">MOVE MODE · SPACE TO SPELL</span>
+        <span id="selectedLabel">No target selected</span>
+      </div>
+      <div id="typedWord">&nbsp;</div>
+      <div id="feedbackLine">Type a clown or tent word exactly, then press Enter.</div>
+      <div id="spellButtons">
+        <button id="focusButton" class="btn">SPELL</button>
+        <button id="hearButton" class="btn">HEAR (H)</button>
+        <button id="backspaceButton" class="btn">⌫</button>
+        <button id="castButton" class="btn primary">CAST</button>
+        <button id="cancelSpellButton" class="btn">CANCEL</button>
+      </div>
+    </div>
+
+    <div id="statusMessage"></div>
+
+    <div class="corner-controls">
+      <button id="muteButton" class="circle-btn" title="Toggle sound" aria-label="Toggle sound">🔊</button>
+      <button id="fullscreenButton" class="circle-btn" title="Fullscreen" aria-label="Fullscreen">⛶</button>
+      <button id="pauseButton" class="circle-btn" title="Pause" aria-label="Pause">Ⅱ</button>
+    </div>
+
+    <div id="touchControls">
+      <span></span><button class="touch-key move-key" data-key="arrowup">▲</button><span></span>
+      <button class="touch-key move-key" data-key="arrowleft">◀</button>
+      <button id="touchSprint" class="touch-key">RUN</button>
+      <button class="touch-key move-key" data-key="arrowright">▶</button>
+      <span></span><button class="touch-key move-key" data-key="arrowdown">▼</button><span></span>
+    </div>
+
+    <div id="onscreenKeyboard"></div>
+  </div>
+
+<script>
+(() => {
+  "use strict";
+
+  const $ = id => document.getElementById(id);
+  const canvas = $("game");
+  const ctx = canvas.getContext("2d");
+
+  const panels = {
+    start: $("startPanel"),
+    instructions: $("instructionsPanel"),
+    records: $("recordsPanel"),
+    pause: $("pausePanel"),
+    report: $("reportPanel")
+  };
+
+  const WORLD = { w: 4200, h: 2800 };
+  const TAU = Math.PI * 2;
+  const STORAGE_KEY = "clownword-desert-v2-profiles";
+  const SETTINGS_KEY = "clownword-desert-v2-settings";
+  const VERSION = "2.0.0";
+  const DPR = Math.min(2, window.devicePixelRatio || 1);
+
+  const WORDS = {
+    preK: [
+      "a","and","away","big","blue","can","come","down","find","for","funny","go","help","here",
+      "i","in","is","it","jump","little","look","make","me","my","not","one","play","red","run",
+      "said","see","the","three","to","two","up","we","where","yellow","you"
+    ],
+    grade1: [
+      "after","again","an","any","as","ask","by","could","every","fly","from","give","going","had",
+      "has","her","him","his","how","just","know","let","live","may","of","old","once","open","over",
+      "put","round","some","stop","take","thank","them","then","think","walk","were","when"
+    ],
+    grade2: [
+      "always","around","because","been","before","best","both","buy","call","cold","does","don't",
+      "fast","first","five","found","gave","goes","green","its","made","many","off","or","pull",
+      "read","right","sing","sit","sleep","tell","their","these","those","upon","us","use","very",
+      "wash","which","why","wish","work","would","write","your"
+    ],
+    grade3: [
+      "about","better","bring","carry","clean","cut","done","draw","drink","eight","fall","far","full",
+      "got","grow","hold","hot","hurt","if","keep","kind","laugh","light","long","much","myself",
+      "never","only","own","pick","seven","shall","show","six","small","start","ten","today",
+      "together","try","warm"
+    ]
+  };
+  WORDS.mixed = [...new Set([...WORDS.preK, ...WORDS.grade1, ...WORDS.grade2, ...WORDS.grade3])];
+
+  const LEVEL_LABELS = {
+    preK: "Pre-K / Kindergarten",
+    grade1: "Grade 1",
+    grade2: "Grade 2",
+    grade3: "Grade 3+",
+    mixed: "Mixed Challenge",
+    custom: "Custom Word List"
+  };
+
+  const REGIONS = [
+    { name: "Sunscorch Flats", x1: 0, y1: 0, x2: 2100, y2: 1400, tint: "rgba(255,204,93,.06)" },
+    { name: "Cactus Canyon", x1: 2100, y1: 0, x2: 4200, y2: 1400, tint: "rgba(122,181,91,.045)" },
+    { name: "Drybone Basin", x1: 0, y1: 1400, x2: 2100, y2: 2800, tint: "rgba(164,104,72,.065)" },
+    { name: "Midnight Carnival", x1: 2100, y1: 1400, x2: 4200, y2: 2800, tint: "rgba(100,72,145,.07)" }
+  ];
+
+  let state = "menu";
+  let returnPanel = "start";
+  let last = performance.now();
+  let elapsed = 0;
+  let focusMode = false;
+  let typed = "";
+  let feedbackTimer = 0;
+  let statusTimer = 0;
+  let screenShake = 0;
+  let audioMuted = false;
+  let audioCtx = null;
+  let currentStudent = "";
+  let currentLevel = "grade1";
+  let wordPool = WORDS.grade1;
+  let session = null;
+  let profiles = loadJSON(STORAGE_KEY, {});
+  let settings = Object.assign({
+    speech: true,
+    reducedMotion: false,
+    highContrast: false
+  }, loadJSON(SETTINGS_KEY, {}));
+
+  const keys = new Set();
+  const camera = { x: 0, y: 0 };
+  const player = {
+    x: WORLD.w / 2, y: WORLD.h / 2,
+    r: 22, speed: 255, hearts: 5, maxHearts: 5,
+    invuln: 0, facing: 0, trail: []
+  };
+
+  let tents = [];
+  let clowns = [];
+  let particles = [];
+  let floaters = [];
+  let props = [];
+  let dunes = [];
+
+  function loadJSON(key, fallback) {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch {
+      return fallback;
+    }
+  }
+
+  function saveJSON(key, value) {
+    try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
+  }
+
+  function sanitizeName(value) {
+    return value.trim().replace(/\s+/g, " ").slice(0, 32);
+  }
+
+  function profileKey(name) {
+    return sanitizeName(name).toLocaleLowerCase();
+  }
+
+  function getProfile(name, create = true) {
+    const key = profileKey(name);
+    if (!key) return null;
+    if (!profiles[key] && create) {
+      profiles[key] = {
+        displayName: sanitizeName(name),
+        createdAt: new Date().toISOString(),
+        sessions: [],
+        lifetime: {
+          attempts: 0,
+          correct: 0,
+          tentsSealed: 0,
+          bossesDefeated: 0,
+          missed: {}
+        }
+      };
+    }
+    return profiles[key] || null;
+  }
+
+  function resize() {
+    canvas.width = Math.floor(innerWidth * DPR);
+    canvas.height = Math.floor(innerHeight * DPR);
+    canvas.style.width = innerWidth + "px";
+    canvas.style.height = innerHeight + "px";
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    if (state === "menu") draw();
+  }
+  addEventListener("resize", resize);
+  resize();
+
+  function showPanel(name) {
+    Object.values(panels).forEach(p => p.classList.add("hidden"));
+    if (name && panels[name]) panels[name].classList.remove("hidden");
+  }
+
+  function applySettings() {
+    $("speechSetting").checked = settings.speech;
+    $("reducedMotionSetting").checked = settings.reducedMotion;
+    $("contrastSetting").checked = settings.highContrast;
+    document.body.classList.toggle("high-contrast", settings.highContrast);
+  }
+  applySettings();
+
+  ["speechSetting","reducedMotionSetting","contrastSetting"].forEach(id => {
+    $(id).addEventListener("change", () => {
+      settings.speech = $("speechSetting").checked;
+      settings.reducedMotion = $("reducedMotionSetting").checked;
+      settings.highContrast = $("contrastSetting").checked;
+      saveJSON(SETTINGS_KEY, settings);
+      applySettings();
+    });
+  });
+
+  $("gradeSelect").addEventListener("change", () => {
+    $("customField").classList.toggle("hidden", $("gradeSelect").value !== "custom");
+  });
+
+  $("studentName").addEventListener("input", updateReturningSummary);
+  function updateReturningSummary() {
+    const name = sanitizeName($("studentName").value);
+    const profile = getProfile(name, false);
+    const box = $("returningSummary");
+    if (!profile || !profile.sessions.length) {
+      box.classList.add("hidden");
+      return;
+    }
+    const lastSession = profile.sessions[profile.sessions.length - 1];
+    const totalAcc = profile.lifetime.attempts
+      ? Math.round(profile.lifetime.correct / profile.lifetime.attempts * 100)
+      : 0;
+    box.innerHTML =
+      `<strong>Welcome back, ${escapeHTML(profile.displayName)}.</strong> ` +
+      `${profile.sessions.length} saved session${profile.sessions.length === 1 ? "" : "s"} · ` +
+      `${totalAcc}% lifetime accuracy · Last grade: ${escapeHTML(lastSession.letterGrade)}.`;
+    box.classList.remove("hidden");
+  }
+
+  function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, c => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+    }[c]));
+  }
+
+  function parseCustomWords(text) {
+    return [...new Set(
+      text.toLowerCase()
+        .split(/[\s,;]+/)
+        .map(w => w.trim().replace(/[^a-z']/g, ""))
+        .filter(w => /^[a-z]+(?:'[a-z]+)?$/.test(w))
+    )];
+  }
+
+  function beginSession() {
+    const name = sanitizeName($("studentName").value);
+    if (!name) {
+      $("studentName").focus();
+      $("studentName").setCustomValidity("Enter the student's name.");
+      $("studentName").reportValidity();
+      $("studentName").setCustomValidity("");
+      return;
+    }
+
+    currentLevel = $("gradeSelect").value;
+    if (currentLevel === "custom") {
+      const custom = parseCustomWords($("customWords").value);
+      if (custom.length < 5) {
+        $("customWords").setCustomValidity("Enter at least five valid words.");
+        $("customWords").reportValidity();
+        $("customWords").setCustomValidity("");
+        return;
+      }
+      wordPool = custom;
+    } else {
+      wordPool = WORDS[currentLevel] || WORDS.grade1;
+    }
+
+    currentStudent = name;
+    getProfile(name, true);
+    saveJSON(STORAGE_KEY, profiles);
+
+    session = {
+      version: VERSION,
+      student: name,
+      level: currentLevel,
+      levelLabel: LEVEL_LABELS[currentLevel],
+      startedAt: new Date().toISOString(),
+      endedAt: null,
+      outcome: "in-progress",
+      attempts: 0,
+      correct: 0,
+      wrong: 0,
+      tentsSealed: 0,
+      bossesDefeated: 0,
+      bestCombo: 0,
+      combo: 0,
+      wordResults: {},
+      missLog: [],
+      durationSeconds: 0
+    };
+
+    elapsed = 0;
+    typed = "";
+    focusMode = false;
+    initWorld();
+    updateSpellUI();
+    showPanel(null);
+    $("spellPanel").classList.remove("hidden");
+    state = "playing";
+    last = performance.now();
+    unlockAudio();
+    beep(360, .06, "sine", .035);
+    requestAnimationFrame(loop);
+  }
+
+  function initWorld() {
+    const rng = mulberry32(20260730);
+    props = [];
+    dunes = [];
+    tents = [];
+    clowns = [];
+    particles = [];
+    floaters = [];
+
+    for (let i = 0; i < 190; i++) {
+      const roll = rng();
+      props.push({
+        x: 80 + rng() * (WORLD.w - 160),
+        y: 80 + rng() * (WORLD.h - 160),
+        type: roll < .42 ? "cactus" : roll < .72 ? "rock" : roll < .9 ? "skull" : "wagon",
+        scale: .65 + rng() * .8,
+        angle: rng() * TAU
+      });
+    }
+
+    for (let i = 0; i < 62; i++) {
+      dunes.push({
+        x: rng() * WORLD.w,
+        y: rng() * WORLD.h,
+        rx: 80 + rng() * 190,
+        ry: 20 + rng() * 60,
+        angle: -.22 + rng() * .44
+      });
+    }
+
+    const positions = [
+      [430, 430], [1370, 340], [2700, 400], [3750, 600],
+      [480, 2200], [1480, 2440], [2760, 2160], [3720, 2380]
+    ];
+
+    positions.forEach((p, i) => tents.push({
+      id: i,
+      x: p[0], y: p[1], r: 62,
+      sealed: false,
+      progress: 0,
+      needed: 3 + (i % 3),
+      spawnTimer: 1.5 + rng() * 2.8,
+      pulse: rng() * TAU,
+      hue: i % 2 ? "blue" : "red",
+      sealWord: chooseWord("tent"),
+      boss: null,
+      bossDefeated: false
+    }));
+
+    player.x = WORLD.w / 2;
+    player.y = WORLD.h / 2;
+    player.hearts = player.maxHearts;
+    player.invuln = 0;
+    player.trail = [];
+    camera.x = clamp(player.x - innerWidth / 2, 0, WORLD.w - innerWidth);
+    camera.y = clamp(player.y - innerHeight / 2, 0, WORLD.h - innerHeight);
+  }
+
+  function mulberry32(seed) {
+    return function() {
+      let t = seed += 0x6D2B79F5;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+
+  function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+  function lerp(a, b, t) { return a + (b - a) * t; }
+  function rand(min, max) { return min + Math.random() * (max - min); }
+  function distance(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
+  function dxy(ax, ay, bx, by) { return Math.hypot(ax - bx, ay - by); }
+
+  function missedWeight(word) {
+    const local = session?.wordResults?.[word]?.wrong || 0;
+    const profile = getProfile(currentStudent, false);
+    const lifetime = profile?.lifetime?.missed?.[word] || 0;
+    return local * 4 + lifetime;
+  }
+
+  function chooseWord(purpose = "clown", avoid = "") {
+    let candidates = wordPool;
+    if (purpose === "runner") {
+      const short = wordPool.filter(w => w.length <= 4);
+      if (short.length) candidates = short;
+    } else if (purpose === "tank" || purpose === "boss") {
+      const long = wordPool.filter(w => w.length >= 5);
+      if (long.length) candidates = long;
+    }
+
+    // Missed words return more frequently for spaced review.
+    if (Math.random() < .38) {
+      const review = candidates
+        .filter(w => w !== avoid && missedWeight(w) > 0)
+        .sort((a,b) => missedWeight(b) - missedWeight(a));
+      if (review.length) return review[Math.floor(Math.random() * Math.min(5, review.length))];
+    }
+
+    let word = avoid;
+    for (let i = 0; i < 12 && word === avoid; i++) {
+      word = candidates[Math.floor(Math.random() * candidates.length)];
+    }
+    return word || candidates[0] || "the";
+  }
+
+  function createClown(x, y, tent, forcedType = null) {
+    const roll = Math.random();
+    const type = forcedType || (
+      roll < .18 ? "runner" :
+      roll < .34 ? "tank" :
+      roll < .49 ? "mime" :
+      roll < .64 ? "juggler" :
+      roll < .78 ? "balloon" : "standard"
+    );
+    const hp = type === "tank" ? 2 : 1;
+    return {
+      id: crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2),
+      x, y, vx: 0, vy: 0,
+      r: type === "tank" ? 23 : type === "balloon" ? 18 : rand(15,19),
+      speed: type === "runner" ? 118 : type === "tank" ? 48 : type === "balloon" ? 57 : rand(62,84),
+      phase: Math.random() * TAU,
+      wiggle: rand(2,5),
+      tent,
+      dead: false,
+      type,
+      hp,
+      maxHp: hp,
+      word: chooseWord(type),
+      spawnedAt: elapsed,
+      color: Math.random() < .5 ? "#ee3159" : "#2aa8df",
+      isBoss: false
+    };
+  }
+
+  function spawnHorde(tent) {
+    if (tent.sealed || tent.boss) return;
+    const amount = Math.min(6, 2 + Math.floor(elapsed / 70) + Math.floor(Math.random() * 3));
+    for (let i = 0; i < amount; i++) {
+      const a = rand(-.7,.7) + Math.atan2(player.y - tent.y, player.x - tent.x);
+      const d = rand(38,72);
+      clowns.push(createClown(tent.x + Math.cos(a)*d, tent.y + Math.sin(a)*d + 18, tent));
+    }
+    burst(tent.x, tent.y + 15, 14, "#d79aef");
+    beep(145, .08, "triangle", .025);
+  }
+
+  function spawnPenaltyClown() {
+    const angle = Math.random() * TAU;
+    const d = 320;
+    const tent = nearestActiveTent();
+    const clown = createClown(
+      clamp(player.x + Math.cos(angle) * d, 30, WORLD.w - 30),
+      clamp(player.y + Math.sin(angle) * d, 30, WORLD.h - 30),
+      tent,
+      "runner"
+    );
+    clown.color = "#ff245c";
+    clowns.push(clown);
+  }
+
+  function spawnBoss(tent) {
+    const boss = createClown(tent.x, tent.y + 95, tent, "ringmaster");
+    boss.isBoss = true;
+    boss.type = "ringmaster";
+    boss.r = 38;
+    boss.speed = 44;
+    boss.hp = 4 + Math.floor(tent.id / 2);
+    boss.maxHp = boss.hp;
+    boss.word = chooseWord("boss");
+    boss.color = "#8d3fc7";
+    tent.boss = boss;
+    clowns.push(boss);
+    showStatus("RINGMASTER BOSS!");
+    speak(`Ringmaster challenge. Spell ${boss.word}`);
+    chord([220,277,330], .25);
+  }
+
+  function nearestActiveTent() {
+    return tents.filter(t => !t.sealed).sort((a,b) =>
+      dxy(player.x,player.y,a.x,a.y) - dxy(player.x,player.y,b.x,b.y)
+    )[0] || null;
+  }
+
+  function enterFocus(announce = false) {
+    if (state !== "playing") return;
+    focusMode = true;
+    $("spellPanel").classList.add("focused");
+    $("onscreenKeyboard").classList.add("focused");
+    updateSpellUI();
+    if (announce && settings.speech) {
+      const target = selectedTarget();
+      if (target) speak(target.word);
+    }
+  }
+
+  function leaveFocus(clear = true) {
+    focusMode = false;
+    if (clear) typed = "";
+    $("spellPanel").classList.remove("focused");
+    $("onscreenKeyboard").classList.remove("focused");
+    updateSpellUI();
+  }
+
+  function targetCandidates() {
+    const maxRange = 760;
+    const enemies = clowns
+      .filter(c => !c.dead && dxy(player.x,player.y,c.x,c.y) < maxRange)
+      .map(c => ({
+        kind: c.isBoss ? "boss" : "clown",
+        object: c,
+        word: c.word,
+        x: c.x, y: c.y,
+        distance: dxy(player.x,player.y,c.x,c.y),
+        label: c.isBoss ? "Ringmaster" : capitalize(c.type) + " clown"
+      }));
+
+    const seals = tents
+      .filter(t => !t.sealed && !t.boss && dxy(player.x,player.y,t.x,t.y) < 430)
+      .map(t => ({
+        kind: "tent",
+        object: t,
+        word: t.sealWord,
+        x: t.x, y: t.y,
+        distance: dxy(player.x,player.y,t.x,t.y),
+        label: "Tent seal"
+      }));
+
+    return [...enemies, ...seals].sort((a,b) => a.distance - b.distance);
+  }
+
+  function selectedTarget() {
+    const candidates = targetCandidates();
+    if (!candidates.length) return null;
+    const prefix = typed.toLowerCase();
+    if (prefix) {
+      return candidates.find(t => t.word.startsWith(prefix)) || candidates[0];
+    }
+    return candidates[0];
+  }
+
+  function capitalize(value) {
+    return value.charAt(0).toUpperCase() + value.slice(1);
+  }
+
+  function updateSpellUI() {
+    $("typedWord").textContent = typed || "\u00a0";
+    const target = selectedTarget();
+    $("selectedLabel").textContent = target
+      ? `${target.label}: ${target.word.toUpperCase()}`
+      : "Move closer to a clown or tent";
+    $("spellModeLabel").textContent = focusMode
+      ? "SPELLING FOCUS · TIME SLOWED"
+      : "MOVE MODE · SPACE TO SPELL";
+
+    if (!typed) {
+      $("typedWord").style.color = "var(--blue)";
+    } else if (target && target.word.startsWith(typed.toLowerCase())) {
+      $("typedWord").style.color = "var(--green)";
+    } else {
+      $("typedWord").style.color = "var(--red)";
+    }
+  }
+
+  function spellInput(letter) {
+    if (state !== "playing") return;
+    if (!focusMode) enterFocus(false);
+    if (/^[a-z']$/i.test(letter) && typed.length < 20) {
+      typed += letter.toLowerCase();
+      beep(430 + typed.length * 24, .02, "square", .01);
+      updateSpellUI();
+    }
+  }
+
+  function backspaceSpell() {
+    if (!focusMode) return;
+    typed = typed.slice(0,-1);
+    updateSpellUI();
+  }
+
+  function castSpell() {
+    if (state !== "playing" || !focusMode || !typed) return;
+    const answer = typed.toLowerCase();
+    const candidates = targetCandidates();
+    const exact = candidates.find(t => t.word === answer);
+
+    session.attempts++;
+    const wordState = session.wordResults[answer] ||= { correct: 0, wrong: 0 };
+
+    if (exact) {
+      session.correct++;
+      session.combo++;
+      session.bestCombo = Math.max(session.bestCombo, session.combo);
+      wordState.correct++;
+      handleCorrectTarget(exact);
+      const comboText = session.combo >= 3 ? ` · COMBO ×${session.combo}` : "";
+      setFeedback(`Correct: ${answer.toUpperCase()}${comboText}`, false);
+      chord(session.combo >= 5 ? [660,880,1100] : [520,700], .15);
+
+      if (session.combo > 0 && session.combo % 10 === 0 && player.hearts < player.maxHearts) {
+        player.hearts++;
+        floaters.push({x:player.x,y:player.y-45,text:"+1 HEART",life:1.4,max:1.4});
+      }
+    } else {
+      session.wrong++;
+      session.combo = 0;
+      wordState.wrong++;
+      const likely = candidates[0];
+      const expected = likely?.word || "move closer";
+      session.missLog.push({
+        typed: answer,
+        expected,
+        time: Math.round(elapsed)
+      });
+      setFeedback(buildCorrection(answer, expected), true);
+      if (likely?.word) {
+        speak(`The correct spelling is ${spellForSpeech(likely.word)}`);
+      }
+      spawnPenaltyClown();
+      beep(100, .2, "sawtooth", .06);
+    }
+
+    typed = "";
+    leaveFocus(false);
+    updateSpellUI();
+  }
+
+  function buildCorrection(answer, expected) {
+    if (!expected || expected === "move closer") return "No matching nearby word. Move closer and try again.";
+    let first = 0;
+    while (first < answer.length && first < expected.length && answer[first] === expected[first]) first++;
+    const position = first + 1;
+    return `You typed ${answer.toUpperCase()}. Correct: ${expected.toUpperCase()}. Check letter ${position}.`;
+  }
+
+  function spellForSpeech(word) {
+    return word.split("").join(", ");
+  }
+
+  function handleCorrectTarget(target) {
+    screenShake = settings.reducedMotion ? 0 : 8;
+    const word = target.word;
+
+    if (target.kind === "tent") {
+      const tent = target.object;
+      tent.progress++;
+      tent.sealWord = chooseWord("tent", word);
+      burst(tent.x,tent.y-10,24,"#fff1a6");
+      floaters.push({
+        x:tent.x,y:tent.y-85,
+        text:`SEAL ${tent.progress}/${tent.needed}`,
+        life:1.2,max:1.2
+      });
+      if (tent.progress >= tent.needed) spawnBoss(tent);
+      return;
+    }
+
+    const clown = target.object;
+    clown.hp--;
+    burst(clown.x, clown.y, clown.isBoss ? 30 : 15, clown.isBoss ? "#ffd166" : "#57c7ff");
+
+    if (clown.hp <= 0) {
+      clown.dead = true;
+      floaters.push({
+        x:clown.x,y:clown.y-25,
+        text:clown.isBoss ? "RINGMASTER DEFEATED!" : "POOF!",
+        life:1.3,max:1.3
+      });
+
+      if (clown.isBoss) {
+        const tent = clown.tent;
+        tent.boss = null;
+        tent.bossDefeated = true;
+        tent.sealed = true;
+        session.bossesDefeated++;
+        session.tentsSealed++;
+        clowns.forEach(c => {
+          if (c.tent === tent && !c.isBoss) {
+            c.dead = true;
+            burst(c.x,c.y,7,"#7ee081");
+          }
+        });
+        showStatus("TENT SEALED!");
+        chord([440,554,659,880], .35);
+      }
+    } else {
+      clown.word = chooseWord(clown.isBoss ? "boss" : clown.type, word);
+      floaters.push({
+        x:clown.x,y:clown.y-25,
+        text:`${clown.hp}/${clown.maxHp} LEFT`,
+        life:1,max:1
+      });
+      if (clown.isBoss) speak(`Next word, ${clown.word}`);
+    }
+  }
+
+  function setFeedback(text, bad) {
+    $("feedbackLine").textContent = text;
+    $("feedbackLine").style.color = bad ? "var(--red)" : "var(--green)";
+    feedbackTimer = 3.4;
+  }
+
+  function showStatus(text, bad = false) {
+    $("statusMessage").textContent = text;
+    $("statusMessage").style.color = bad ? "var(--red)" : "var(--gold)";
+    $("statusMessage").style.opacity = "1";
+    statusTimer = 1.25;
+  }
+
+  function speakSelected() {
+    const target = selectedTarget();
+    if (!target) {
+      setFeedback("Move closer to a clown or tent first.", true);
+      return;
+    }
+    speak(target.word);
+  }
+
+  function speak(text) {
+    if (!settings.speech || !("speechSynthesis" in window)) return;
+    speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = .82;
+    utterance.pitch = 1;
+    speechSynthesis.speak(utterance);
+  }
+
+  function togglePause() {
+    if (state === "playing") {
+      state = "paused";
+      showPanel("pause");
+      $("spellPanel").classList.add("hidden");
+    } else if (state === "paused") {
+      state = "playing";
+      showPanel(null);
+      $("spellPanel").classList.remove("hidden");
+      last = performance.now();
+      requestAnimationFrame(loop);
+    }
+  }
+
+  function finishSession(outcome) {
+    if (!session || state === "report") return;
+    state = "report";
+    session.outcome = outcome;
+    session.endedAt = new Date().toISOString();
+    session.durationSeconds = Math.round(elapsed);
+
+    const attemptedWords = Object.values(session.wordResults);
+    const eventuallyMastered = attemptedWords.filter(r => r.correct > 0).length;
+    const accuracy = session.attempts ? session.correct / session.attempts * 100 : 0;
+    const completion = session.tentsSealed / tents.length * 100;
+    const mastery = attemptedWords.length ? eventuallyMastered / attemptedWords.length * 100 : 0;
+    const score = Math.round(accuracy * .70 + completion * .20 + mastery * .10);
+    session.accuracy = round1(accuracy);
+    session.completion = round1(completion);
+    session.mastery = round1(mastery);
+    session.numericGrade = score;
+    session.letterGrade = letterGrade(score);
+
+    saveSession();
+    renderReport();
+    $("spellPanel").classList.add("hidden");
+    showPanel("report");
+    if (outcome === "victory") chord([523,659,784,1046], .5);
+    else chord([180,150,120], .4);
+  }
+
+  function saveSession() {
+    const profile = getProfile(currentStudent, true);
+    profile.displayName = currentStudent;
+    profile.sessions.push({...session});
+    profile.sessions = profile.sessions.slice(-50);
+    profile.lifetime.attempts += session.attempts;
+    profile.lifetime.correct += session.correct;
+    profile.lifetime.tentsSealed += session.tentsSealed;
+    profile.lifetime.bossesDefeated += session.bossesDefeated;
+    for (const [word, result] of Object.entries(session.wordResults)) {
+      if (result.wrong > 0) {
+        profile.lifetime.missed[word] = (profile.lifetime.missed[word] || 0) + result.wrong;
+      }
+      if (result.correct > 0 && profile.lifetime.missed[word] > 0) {
+        profile.lifetime.missed[word] = Math.max(0, profile.lifetime.missed[word] - 1);
+      }
+    }
+    saveJSON(STORAGE_KEY, profiles);
+  }
+
+  function round1(n) { return Math.round(n * 10) / 10; }
+
+  function letterGrade(score) {
+    if (score >= 97) return "A+";
+    if (score >= 93) return "A";
+    if (score >= 90) return "A-";
+    if (score >= 87) return "B+";
+    if (score >= 83) return "B";
+    if (score >= 80) return "B-";
+    if (score >= 77) return "C+";
+    if (score >= 73) return "C";
+    if (score >= 70) return "C-";
+    if (score >= 60) return "D";
+    return "F";
+  }
+
+  function renderReport() {
+    $("reportTitle").textContent = `${session.student}'s Session Report`;
+    $("gradeBadge").textContent = session.letterGrade;
+    $("reportSummary").textContent =
+      `${session.outcome === "victory" ? "The desert was saved." :
+        session.outcome === "defeat" ? "The clown horde ended this run." :
+        "The session was ended early."} Final score: ${session.numericGrade}%.`;
+
+    const metrics = [
+      ["Student", session.student],
+      ["Level", session.levelLabel],
+      ["Numeric grade", `${session.numericGrade}%`],
+      ["Letter grade", session.letterGrade],
+      ["Accuracy", `${session.accuracy}%`],
+      ["Correct / attempts", `${session.correct} / ${session.attempts}`],
+      ["Tents sealed", `${session.tentsSealed} / ${tents.length}`],
+      ["Bosses defeated", session.bossesDefeated],
+      ["Mastery", `${session.mastery}%`],
+      ["Best combo", `×${session.bestCombo}`],
+      ["Time", formatTime(session.durationSeconds)],
+      ["Outcome", capitalize(session.outcome)]
+    ];
+    $("reportMetrics").innerHTML = metrics.map(([label,value]) =>
+      `<div class="metric"><span class="value">${escapeHTML(value)}</span><span class="label">${escapeHTML(label)}</span></div>`
+    ).join("");
+
+    $("gradeBreakdown").innerHTML = `
+      <table>
+        <tr><th>Category</th><th>Result</th><th>Weight</th><th>Contribution</th></tr>
+        <tr><td>Spelling accuracy</td><td>${session.accuracy}%</td><td>70%</td><td>${round1(session.accuracy*.70)}</td></tr>
+        <tr><td>Tent completion</td><td>${session.completion}%</td><td>20%</td><td>${round1(session.completion*.20)}</td></tr>
+        <tr><td>Word mastery</td><td>${session.mastery}%</td><td>10%</td><td>${round1(session.mastery*.10)}</td></tr>
+        <tr><th colspan="3">Final score</th><th>${session.numericGrade}% (${session.letterGrade})</th></tr>
+      </table>`;
+
+    const missed = Object.entries(session.wordResults)
+      .filter(([,r]) => r.wrong > 0)
+      .sort((a,b) => b[1].wrong - a[1].wrong);
+    $("missedWordsList").innerHTML = missed.length
+      ? missed.map(([word,r]) => `<span class="word-chip">${escapeHTML(word)} (${r.wrong})</span>`).join("")
+      : `<span class="word-chip" style="background:rgba(126,224,129,.15);border-color:rgba(126,224,129,.35)">No missed words</span>`;
+
+    const profile = getProfile(currentStudent, false);
+    const recent = [...(profile?.sessions || [])].reverse().slice(0,8);
+    $("studentHistory").innerHTML = `
+      <table>
+        <tr><th>Date</th><th>Level</th><th>Grade</th><th>Accuracy</th><th>Tents</th></tr>
+        ${recent.map(s => `
+          <tr>
+            <td>${new Date(s.endedAt).toLocaleDateString()}</td>
+            <td>${escapeHTML(s.levelLabel)}</td>
+            <td>${escapeHTML(s.letterGrade)} (${s.numericGrade}%)</td>
+            <td>${s.accuracy}%</td>
+            <td>${s.tentsSealed}/${tents.length}</td>
+          </tr>`).join("")}
+      </table>`;
+  }
+
+  function formatTime(seconds) {
+    const m = Math.floor(seconds/60);
+    const s = Math.floor(seconds%60).toString().padStart(2,"0");
+    return `${m}:${s}`;
+  }
+
+  function downloadSessionCSV() {
+    if (!session) return;
+    const missed = Object.entries(session.wordResults)
+      .filter(([,r]) => r.wrong > 0)
+      .map(([w,r]) => `${w} (${r.wrong})`)
+      .join("; ");
+    const rows = [
+      ["Student","Level","Date","Outcome","Numeric Grade","Letter Grade","Accuracy","Correct","Attempts",
+       "Tents Sealed","Bosses Defeated","Mastery","Best Combo","Duration Seconds","Missed Words"],
+      [
+        session.student,session.levelLabel,session.endedAt,session.outcome,session.numericGrade,session.letterGrade,
+        session.accuracy,session.correct,session.attempts,session.tentsSealed,session.bossesDefeated,
+        session.mastery,session.bestCombo,session.durationSeconds,missed
+      ]
+    ];
+    downloadCSV(`${slug(session.student)}-clownword-report-${dateStamp()}.csv`, rows);
+  }
+
+  function exportAllRecords() {
+    const rows = [[
+      "Student","Level","Date","Outcome","Numeric Grade","Letter Grade","Accuracy","Correct","Attempts",
+      "Tents Sealed","Bosses Defeated","Mastery","Best Combo","Duration Seconds"
+    ]];
+    Object.values(profiles).forEach(profile => profile.sessions.forEach(s => rows.push([
+      s.student,s.levelLabel,s.endedAt,s.outcome,s.numericGrade,s.letterGrade,s.accuracy,s.correct,s.attempts,
+      s.tentsSealed,s.bossesDefeated,s.mastery,s.bestCombo,s.durationSeconds
+    ])));
+    downloadCSV(`clownword-all-student-records-${dateStamp()}.csv`, rows);
+  }
+
+  function downloadCSV(filename, rows) {
+    const csv = rows.map(row => row.map(value =>
+      `"${String(value ?? "").replace(/"/g,'""')}"`
+    ).join(",")).join("\n");
+    const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  function slug(value) {
+    return value.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"") || "student";
+  }
+
+  function dateStamp() {
+    return new Date().toISOString().slice(0,10);
+  }
+
+  function renderRecords() {
+    const entries = Object.values(profiles).sort((a,b) => a.displayName.localeCompare(b.displayName));
+    if (!entries.length) {
+      $("recordsContent").innerHTML = "<p>No saved student sessions yet.</p>";
+      return;
+    }
+    $("recordsContent").innerHTML = `
+      <table>
+        <tr><th>Student</th><th>Sessions</th><th>Lifetime accuracy</th><th>Latest grade</th><th>Tents sealed</th></tr>
+        ${entries.map(p => {
+          const latest = p.sessions[p.sessions.length-1];
+          const accuracy = p.lifetime.attempts ? Math.round(p.lifetime.correct/p.lifetime.attempts*100) : 0;
+          return `<tr>
+            <td>${escapeHTML(p.displayName)}</td>
+            <td>${p.sessions.length}</td>
+            <td>${accuracy}%</td>
+            <td>${latest ? escapeHTML(latest.letterGrade) : "-"}</td>
+            <td>${p.lifetime.tentsSealed}</td>
+          </tr>`;
+        }).join("")}
+      </table>`;
+  }
+
+  function update(dt) {
+    const timeScale = focusMode ? .22 : 1;
+    const worldDt = dt * timeScale;
+    elapsed += dt;
+
+    if (player.invuln > 0) player.invuln -= worldDt;
+    if (statusTimer > 0) {
+      statusTimer -= dt;
+      if (statusTimer <= 0) $("statusMessage").style.opacity = "0";
+    }
+    if (feedbackTimer > 0) {
+      feedbackTimer -= dt;
+      if (feedbackTimer <= 0) {
+        $("feedbackLine").textContent = "Type a clown or tent word exactly, then press Enter.";
+        $("feedbackLine").style.color = "#d7c09a";
+      }
+    }
+    screenShake = Math.max(0, screenShake - dt * 28);
+
+    if (!focusMode) {
+      let dx = 0, dy = 0;
+      if (keys.has("arrowup")) dy--;
+      if (keys.has("arrowdown")) dy++;
+      if (keys.has("arrowleft")) dx--;
+      if (keys.has("arrowright")) dx++;
+      if (dx || dy) {
+        const mag = Math.hypot(dx,dy);
+        dx /= mag; dy /= mag;
+        const sprint = keys.has("shift") ? 1.5 : 1;
+        player.x += dx * player.speed * sprint * worldDt;
+        player.y += dy * player.speed * sprint * worldDt;
+        player.facing = Math.atan2(dy,dx);
+        if (!settings.reducedMotion && Math.random() < worldDt * 12) {
+          player.trail.push({x:player.x-dx*20,y:player.y-dy*20,life:.35});
+        }
+      }
+    }
+
+    player.x = clamp(player.x,30,WORLD.w-30);
+    player.y = clamp(player.y,30,WORLD.h-30);
+    player.trail.forEach(p => p.life -= worldDt);
+    player.trail = player.trail.filter(p => p.life > 0);
+
+    tents.forEach(t => {
+      t.pulse += worldDt * 2;
+      if (t.sealed || t.boss) return;
+      t.spawnTimer -= worldDt;
+      const d = dxy(player.x,player.y,t.x,t.y);
+      if (t.spawnTimer <= 0 && d < 1350 && clowns.length < 105) {
+        spawnHorde(t);
+        t.spawnTimer = Math.max(2.5, 6.7 - elapsed/85) + Math.random()*2.5;
+      }
+    });
+
+    clowns.forEach((c,index) => {
+      if (c.dead) return;
+      c.phase += worldDt * c.wiggle;
+      const ax = player.x-c.x, ay = player.y-c.y;
+      const d = Math.max(1,Math.hypot(ax,ay));
+      let sepX=0, sepY=0;
+      for (let j=Math.max(0,index-8); j<Math.min(clowns.length,index+8); j++) {
+        if (j===index || clowns[j].dead) continue;
+        const o=clowns[j], ox=c.x-o.x, oy=c.y-o.y, od=Math.hypot(ox,oy);
+        if (od>0 && od<48) {
+          sepX += ox/od*(48-od);
+          sepY += oy/od*(48-od);
+        }
+      }
+      const floatBoost = c.type === "balloon" ? Math.sin(c.phase*1.8)*28 : 0;
+      const wiggleX = Math.cos(c.phase)*15;
+      const wiggleY = Math.sin(c.phase*1.3)*15 + floatBoost;
+      const tx=ax/d*c.speed+sepX*1.8+wiggleX;
+      const ty=ay/d*c.speed+sepY*1.8+wiggleY;
+      c.vx=lerp(c.vx,tx,1-Math.pow(.001,worldDt));
+      c.vy=lerp(c.vy,ty,1-Math.pow(.001,worldDt));
+      c.x += c.vx*worldDt;
+      c.y += c.vy*worldDt;
+
+      if (d < player.r+c.r+5 && player.invuln<=0) {
+        player.hearts--;
+        player.invuln=1.15;
+        session.combo=0;
+        screenShake=settings.reducedMotion?0:12;
+        c.x -= ax/d*80;
+        c.y -= ay/d*80;
+        burst(player.x,player.y,18,"#ff5577");
+        floaters.push({x:player.x,y:player.y-45,text:"-1 HEART",life:1.2,max:1.2});
+        beep(90,.25,"sawtooth",.07);
+        if (player.hearts<=0) finishSession("defeat");
+      }
+    });
+
+    clowns = clowns.filter(c => !c.dead);
+
+    particles.forEach(p => {
+      p.life -= worldDt;
+      p.x += p.vx*worldDt;
+      p.y += p.vy*worldDt;
+      p.vx *= Math.pow(.06,worldDt);
+      p.vy *= Math.pow(.06,worldDt);
+    });
+    particles = particles.filter(p => p.life>0);
+    floaters.forEach(f => {f.life-=worldDt;f.y-=38*worldDt;});
+    floaters = floaters.filter(f=>f.life>0);
+
+    const targetX=clamp(player.x-innerWidth/2,0,Math.max(0,WORLD.w-innerWidth));
+    const targetY=clamp(player.y-innerHeight/2,0,Math.max(0,WORLD.h-innerHeight));
+    camera.x=lerp(camera.x,targetX,1-Math.pow(.00002,worldDt));
+    camera.y=lerp(camera.y,targetY,1-Math.pow(.00002,worldDt));
+
+    updateSpellUI();
+
+    if (tents.every(t=>t.sealed)) finishSession("victory");
+  }
+
+  function burst(x,y,count,color) {
+    if (settings.reducedMotion) count = Math.ceil(count/3);
+    for (let i=0;i<count;i++) {
+      const a=Math.random()*TAU, s=rand(35,180);
+      particles.push({
+        x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,
+        life:rand(.35,.9),max:1,size:rand(2,6),color
+      });
+    }
+  }
+
+  function worldToScreen(x,y) { return {x:x-camera.x,y:y-camera.y}; }
+  function visible(x,y,m=120) {
+    const sx=x-camera.x, sy=y-camera.y;
+    return sx>-m&&sy>-m&&sx<innerWidth+m&&sy<innerHeight+m;
+  }
+
+  function draw() {
+    const shakeX=screenShake?rand(-screenShake,screenShake):0;
+    const shakeY=screenShake?rand(-screenShake,screenShake):0;
+    ctx.save();
+    ctx.translate(shakeX,shakeY);
+    drawDesert();
+    drawRegions();
+    drawWorldBorder();
+    drawDunes();
+    drawProps();
+    drawOasis();
+    drawTents();
+    drawTrails();
+    drawClowns();
+    drawPlayer();
+    drawParticles();
+    drawFloaters();
+    ctx.restore();
+    drawHUD();
+    drawMinimap();
+    drawVignette();
+  }
+
+  function drawDesert() {
+    const cycle=(Math.sin(elapsed/60)+1)/2;
+    const top=cycle>.52?"#dfa64c":"#a86d49";
+    const bottom=cycle>.52?"#c77a2d":"#734757";
+    const g=ctx.createLinearGradient(0,0,0,innerHeight);
+    g.addColorStop(0,top);g.addColorStop(1,bottom);
+    ctx.fillStyle=g;ctx.fillRect(0,0,innerWidth,innerHeight);
+    ctx.globalAlpha=.14;
+    ctx.fillStyle="#ffe19a";
+    const grid=80, ox=-((camera.x*.2)%grid), oy=-((camera.y*.2)%grid);
+    for(let y=oy;y<innerHeight;y+=grid) for(let x=ox;x<innerWidth;x+=grid) {
+      ctx.beginPath();ctx.arc(x+((y/grid)%2)*25,y,1.4,0,TAU);ctx.fill();
+    }
+    ctx.globalAlpha=1;
+  }
+
+  function drawRegions() {
+    REGIONS.forEach(r => {
+      const p=worldToScreen(r.x1,r.y1);
+      ctx.fillStyle=r.tint;
+      ctx.fillRect(p.x,p.y,r.x2-r.x1,r.y2-r.y1);
+      const cx=(r.x1+r.x2)/2, cy=(r.y1+r.y2)/2;
+      if (visible(cx,cy,400)) {
+        const s=worldToScreen(cx,cy);
+        ctx.globalAlpha=.18;
+        ctx.fillStyle="#fff4cf";
+        ctx.font="1000 42px system-ui";
+        ctx.textAlign="center";
+        ctx.fillText(r.name.toUpperCase(),s.x,s.y);
+        ctx.globalAlpha=1;
+      }
+    });
+  }
+
+  function drawWorldBorder() {
+    const p=worldToScreen(0,0);
+    ctx.strokeStyle="rgba(72,38,17,.65)";
+    ctx.lineWidth=24;
+    ctx.strokeRect(p.x,p.y,WORLD.w,WORLD.h);
+  }
+
+  function drawDunes() {
+    dunes.forEach(d=>{
+      if(!visible(d.x,d.y,240))return;
+      const p=worldToScreen(d.x,d.y);
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(d.angle);
+      ctx.fillStyle="rgba(255,224,145,.10)";
+      ctx.beginPath();ctx.ellipse(0,0,d.rx,d.ry,0,0,TAU);ctx.fill();
+      ctx.strokeStyle="rgba(112,58,23,.13)";ctx.lineWidth=4;
+      ctx.beginPath();ctx.arc(0,0,d.rx*.78,Math.PI*.05,Math.PI*.95);ctx.stroke();
+      ctx.restore();
+    });
+  }
+
+  function drawProps() {
+    props.forEach(p=>{
+      if(!visible(p.x,p.y,90))return;
+      const s=worldToScreen(p.x,p.y);
+      ctx.save();ctx.translate(s.x,s.y);ctx.rotate(p.angle);ctx.scale(p.scale,p.scale);
+      if(p.type==="cactus")drawCactus();
+      else if(p.type==="rock")drawRock();
+      else if(p.type==="skull")drawSkull();
+      else drawWagon();
+      ctx.restore();
+    });
+  }
+
+  function drawCactus() {
+    ctx.fillStyle="rgba(0,0,0,.15)";ctx.beginPath();ctx.ellipse(5,26,21,7,0,0,TAU);ctx.fill();
+    ctx.strokeStyle="#315f36";ctx.lineWidth=11;ctx.lineCap="round";ctx.beginPath();
+    ctx.moveTo(0,27);ctx.lineTo(0,-24);ctx.moveTo(0,-5);ctx.lineTo(-14,-13);ctx.lineTo(-14,-25);
+    ctx.moveTo(0,4);ctx.lineTo(15,-4);ctx.lineTo(15,-15);ctx.stroke();
+    ctx.strokeStyle="#4f8c4d";ctx.lineWidth=5;ctx.stroke();
+  }
+  function drawRock() {
+    ctx.fillStyle="rgba(0,0,0,.15)";ctx.beginPath();ctx.ellipse(4,15,25,8,0,0,TAU);ctx.fill();
+    ctx.fillStyle="#8e5e3c";ctx.beginPath();ctx.moveTo(-21,10);ctx.lineTo(-14,-11);ctx.lineTo(4,-18);
+    ctx.lineTo(22,-4);ctx.lineTo(18,13);ctx.closePath();ctx.fill();
+  }
+  function drawSkull() {
+    ctx.fillStyle="rgba(0,0,0,.14)";ctx.beginPath();ctx.ellipse(0,9,18,6,0,0,TAU);ctx.fill();
+    ctx.fillStyle="#d9c59b";ctx.beginPath();ctx.arc(0,-3,13,0,TAU);ctx.fill();ctx.fillRect(-8,5,16,7);
+    ctx.fillStyle="#39261a";ctx.beginPath();ctx.arc(-5,-5,3,0,TAU);ctx.arc(5,-5,3,0,TAU);ctx.fill();ctx.fillRect(-2,1,4,4);
+  }
+  function drawWagon() {
+    ctx.fillStyle="#6d301c";ctx.fillRect(-25,-12,50,28);
+    ctx.fillStyle="#d84b4b";ctx.beginPath();ctx.arc(-15,19,9,0,TAU);ctx.arc(15,19,9,0,TAU);ctx.fill();
+    ctx.fillStyle="#f6d08a";ctx.fillRect(-20,-7,40,6);
+  }
+
+  function drawOasis() {
+    const x=WORLD.w/2,y=WORLD.h/2+110;
+    if(!visible(x,y,260))return;
+    const p=worldToScreen(x,y);
+    ctx.fillStyle="rgba(91,56,24,.28)";ctx.beginPath();ctx.ellipse(p.x+6,p.y+10,190,74,-.1,0,TAU);ctx.fill();
+    const g=ctx.createRadialGradient(p.x-35,p.y-15,5,p.x,p.y,190);
+    g.addColorStop(0,"#6ee7f3");g.addColorStop(.65,"#238daa");g.addColorStop(1,"#176177");
+    ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(p.x,p.y,170,62,-.1,0,TAU);ctx.fill();
+  }
+
+  function drawTents() {
+    tents.forEach(t=>{
+      if(!visible(t.x,t.y,150))return;
+      const p=worldToScreen(t.x,t.y);
+      ctx.save();ctx.translate(p.x,p.y);
+      ctx.fillStyle="rgba(0,0,0,.23)";ctx.beginPath();ctx.ellipse(7,34,70,22,0,0,TAU);ctx.fill();
+
+      if(t.sealed) {
+        ctx.globalAlpha=.78;ctx.fillStyle="#4e5660";ctx.beginPath();
+        ctx.moveTo(-55,25);ctx.lineTo(0,-58);ctx.lineTo(55,25);ctx.closePath();ctx.fill();
+        ctx.fillStyle="#7ee081";ctx.beginPath();ctx.arc(0,-2,24+Math.sin(t.pulse)*2,0,TAU);ctx.fill();
+        ctx.fillStyle="#18351f";ctx.font="900 27px system-ui";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("✓",0,-1);
+        ctx.restore();return;
+      }
+
+      const main=t.hue==="red"?"#e53e57":"#2794c7", light="#fff0cf";
+      ctx.fillStyle=main;ctx.beginPath();ctx.moveTo(-62,28);ctx.lineTo(0,-72);ctx.lineTo(62,28);ctx.closePath();ctx.fill();
+      ctx.fillStyle=light;
+      for(let i=-2;i<=2;i+=2){ctx.beginPath();ctx.moveTo(i*15-10,28);ctx.lineTo(i*4,-58);ctx.lineTo(i*15+10,28);ctx.closePath();ctx.fill();}
+      ctx.fillStyle="#16110d";ctx.beginPath();ctx.moveTo(-17,28);ctx.quadraticCurveTo(0,-2,17,28);ctx.closePath();ctx.fill();
+      ctx.fillStyle="#562315";ctx.fillRect(-3,-91,6,25);
+      ctx.fillStyle="#ffd166";ctx.beginPath();ctx.moveTo(3,-89);ctx.lineTo(31,-80);ctx.lineTo(3,-70);ctx.closePath();ctx.fill();
+
+      const totalW=t.needed*12;
+      for(let i=0;i<t.needed;i++){
+        ctx.fillStyle=i<t.progress?"#7ee081":"rgba(0,0,0,.55)";
+        ctx.beginPath();ctx.arc(-totalW/2+7+i*12,44,4.5,0,TAU);ctx.fill();
+      }
+
+      const near=dxy(player.x,player.y,t.x,t.y)<430;
+      if(near&&!t.boss){
+        const isSelected=selectedTarget()?.object===t;
+        ctx.strokeStyle=isSelected?"#fff":"rgba(255,241,166,.55)";
+        ctx.lineWidth=isSelected?7:4;
+        ctx.beginPath();ctx.arc(0,0,77+Math.sin(t.pulse)*4,0,TAU);ctx.stroke();
+        drawWordLabel(0,-116,t.sealWord,"#ffd166","Tent seal");
+      }
+      ctx.restore();
+    });
+  }
+
+  function drawTrails() {
+    player.trail.forEach(p=>{
+      const s=worldToScreen(p.x,p.y);
+      ctx.globalAlpha=p.life/.35*.25;ctx.fillStyle="#6f481f";ctx.beginPath();ctx.ellipse(s.x,s.y,12,6,0,0,TAU);ctx.fill();
+    });ctx.globalAlpha=1;
+  }
+
+  function displayWord(c) {
+    if(c.type==="mime" && elapsed-c.spawnedAt>3) return "•".repeat(c.word.length);
+    if(c.type==="juggler") {
+      const chars=c.word.split("");
+      const shift=Math.floor(elapsed*2)%Math.max(1,chars.length);
+      return chars.slice(shift).concat(chars.slice(0,shift)).join("");
+    }
+    return c.word;
+  }
+
+  function drawClowns() {
+    const selected=selectedTarget()?.object;
+    clowns.forEach(c=>{
+      if(!visible(c.x,c.y,100))return;
+      const p=worldToScreen(c.x,c.y);
+      ctx.save();ctx.translate(p.x,p.y+Math.sin(c.phase*2)*2);
+      if(selected===c){
+        ctx.strokeStyle="#fff8b8";ctx.lineWidth=6;ctx.beginPath();ctx.arc(0,0,c.r+14,0,TAU);ctx.stroke();
+      }
+
+      ctx.fillStyle="rgba(0,0,0,.2)";ctx.beginPath();ctx.ellipse(3,c.r+12,c.r+7,7,0,0,TAU);ctx.fill();
+      if(c.type==="balloon"){
+        ctx.strokeStyle="#eee";ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(0,-c.r*2);ctx.lineTo(0,-c.r-10);ctx.stroke();
+        ctx.fillStyle="#ffd166";ctx.beginPath();ctx.ellipse(0,-c.r*2.3,12,17,0,0,TAU);ctx.fill();
+      }
+
+      ctx.strokeStyle="#2c1b35";ctx.lineWidth=c.isBoss?8:5;ctx.lineCap="round";ctx.beginPath();
+      ctx.moveTo(-7,c.r-2);ctx.lineTo(-8,c.r+13);ctx.moveTo(7,c.r-2);ctx.lineTo(9,c.r+13);ctx.stroke();
+
+      ctx.fillStyle=c.color;ctx.beginPath();ctx.ellipse(0,5,c.r,c.r+4,0,0,TAU);ctx.fill();
+      if(c.type==="tank"){ctx.strokeStyle="#5e6570";ctx.lineWidth=6;ctx.stroke();}
+
+      ctx.fillStyle="#ffd166";ctx.beginPath();ctx.arc(0,-2,3,0,TAU);ctx.arc(0,8,3,0,TAU);ctx.fill();
+      ctx.fillStyle="#fff3df";ctx.beginPath();ctx.arc(0,-c.r+2,c.r*.78,0,TAU);ctx.fill();
+      ctx.fillStyle=c.isBoss?"#111":c.type==="runner"?"#ff7b00":"#8e44ad";
+      for(let a=Math.PI;a<=TAU;a+=Math.PI/5){ctx.beginPath();ctx.arc(Math.cos(a)*c.r*.72,-c.r+2+Math.sin(a)*c.r*.72,c.isBoss?9:6,0,TAU);ctx.fill();}
+      ctx.fillStyle="#20140d";ctx.beginPath();ctx.arc(-5,-c.r,2.5,0,TAU);ctx.arc(5,-c.r,2.5,0,TAU);ctx.fill();
+      ctx.fillStyle="#ef476f";ctx.beginPath();ctx.arc(0,-c.r+5,4,0,TAU);ctx.fill();
+      ctx.strokeStyle="#7f1d38";ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,-c.r+7,8,.1,Math.PI-.1);ctx.stroke();
+
+      if(c.isBoss){
+        ctx.fillStyle="#20140d";ctx.fillRect(-c.r-5,-c.r-34,(c.r+5)*2,8);
+        ctx.fillStyle="#ef476f";ctx.fillRect(-c.r-5,-c.r-34,(c.r+5)*2*(c.hp/c.maxHp),8);
+      }
+      drawWordLabel(0,-c.r-49,displayWord(c),c.isBoss?"#ffd166":"#fff",c.isBoss?"RINGMASTER":capitalize(c.type));
+      ctx.restore();
+    });
+  }
+
+  function drawWordLabel(x,y,word,color,kind) {
+    ctx.save();
+    ctx.font="1000 17px system-ui";
+    ctx.textAlign="center";ctx.textBaseline="middle";
+    const width=Math.max(76,ctx.measureText(word.toUpperCase()).width+20);
+    ctx.fillStyle="rgba(25,15,9,.88)";
+    roundRect(ctx,x-width/2,y-16,width,33,9);ctx.fill();
+    ctx.strokeStyle="rgba(255,255,255,.25)";ctx.lineWidth=1.5;ctx.stroke();
+    ctx.fillStyle=color;ctx.fillText(word.toUpperCase(),x,y);
+    ctx.font="800 8px system-ui";ctx.fillStyle="#cdb48e";ctx.fillText(kind.toUpperCase(),x,y-23);
+    ctx.restore();
+  }
+
+  function drawPlayer() {
+    const p=worldToScreen(player.x,player.y);
+    ctx.save();ctx.translate(p.x,p.y);
+    if(player.invuln>0&&Math.floor(player.invuln*12)%2===0)ctx.globalAlpha=.35;
+    ctx.fillStyle="rgba(0,0,0,.22)";ctx.beginPath();ctx.ellipse(4,23,25,9,0,0,TAU);ctx.fill();
+    ctx.fillStyle="#293e63";ctx.beginPath();ctx.moveTo(-19,18);ctx.quadraticCurveTo(-16,-8,0,-16);ctx.quadraticCurveTo(16,-8,19,18);ctx.closePath();ctx.fill();
+    ctx.strokeStyle="#ef476f";ctx.lineWidth=7;ctx.beginPath();ctx.arc(0,-5,16,.1,Math.PI-.1);ctx.stroke();
+    ctx.fillStyle="#8c5a3c";ctx.beginPath();ctx.arc(0,-17,12,0,TAU);ctx.fill();
+    ctx.fillStyle="#5c321e";ctx.fillRect(-17,-28,34,5);ctx.fillRect(-10,-38,20,12);
+    ctx.rotate(player.facing);ctx.strokeStyle="#f5d18b";ctx.lineWidth=5;ctx.lineCap="round";ctx.beginPath();ctx.moveTo(10,3);ctx.lineTo(31,3);ctx.stroke();
+    ctx.fillStyle=focusMode?"#57c7ff":"#fff4ad";ctx.beginPath();ctx.arc(34,3,5+Math.sin(elapsed*7)*1.3,0,TAU);ctx.fill();
+    ctx.restore();
+  }
+
+  function drawParticles() {
+    particles.forEach(p=>{
+      if(!visible(p.x,p.y,20))return;
+      const s=worldToScreen(p.x,p.y);
+      ctx.globalAlpha=clamp(p.life/.7,0,1);ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(s.x,s.y,p.size,0,TAU);ctx.fill();
+    });ctx.globalAlpha=1;
+  }
+
+  function drawFloaters() {
+    ctx.textAlign="center";ctx.textBaseline="middle";ctx.font="900 18px system-ui";
+    floaters.forEach(f=>{
+      const s=worldToScreen(f.x,f.y);
+      ctx.globalAlpha=clamp(f.life/f.max,0,1);ctx.fillStyle="#fff4ad";ctx.strokeStyle="rgba(40,20,10,.75)";ctx.lineWidth=5;
+      ctx.strokeText(f.text,s.x,s.y);ctx.fillText(f.text,s.x,s.y);
+    });ctx.globalAlpha=1;
+  }
+
+  function drawHUD() {
+    if(state==="menu")return;
+    const pad=14;
+    ctx.fillStyle="rgba(30,18,10,.84)";roundRect(ctx,pad,pad,300,112,16);ctx.fill();
+    ctx.font="900 14px system-ui";ctx.fillStyle="#f2c56f";ctx.textAlign="left";
+    ctx.fillText(`${currentStudent.toUpperCase()} · ${LEVEL_LABELS[currentLevel].toUpperCase()}`,pad+15,pad+23);
+    for(let i=0;i<player.maxHearts;i++)drawHeart(pad+22+i*31,pad+47,10,i<player.hearts?"#ef476f":"#5c3a35");
+    ctx.font="800 13px system-ui";ctx.fillStyle="#fff1c9";
+    const accuracy=session?.attempts?Math.round(session.correct/session.attempts*100):100;
+    ctx.fillText(`Accuracy: ${accuracy}%`,pad+15,pad+76);
+    ctx.fillText(`Correct: ${session?.correct||0}/${session?.attempts||0}`,pad+120,pad+76);
+    ctx.fillText(`Clowns: ${clowns.length}`,pad+15,pad+99);
+    ctx.fillText(`Combo: ×${session?.combo||0}`,pad+120,pad+99);
+
+    const sealed=tents.filter(t=>t.sealed).length, ow=285, ox=innerWidth/2-ow/2;
+    ctx.fillStyle="rgba(30,18,10,.80)";roundRect(ctx,ox,14,ow,59,14);ctx.fill();
+    ctx.font="900 12px system-ui";ctx.fillStyle="#f2c56f";ctx.textAlign="center";
+    ctx.fillText("TENTS SEALED · BOSSES DEFEATED",innerWidth/2,34);
+    ctx.font="1000 20px system-ui";ctx.fillStyle="#fff1c9";
+    ctx.fillText(`${sealed}/${tents.length} · ${session?.bossesDefeated||0}`,innerWidth/2,59);
+
+    const region=REGIONS.find(r=>player.x>=r.x1&&player.x<r.x2&&player.y>=r.y1&&player.y<r.y2);
+    if(region){
+      ctx.font="900 12px system-ui";ctx.fillStyle="rgba(255,240,199,.8)";
+      ctx.fillText(region.name.toUpperCase(),innerWidth/2,92);
+    }
+  }
+
+  function drawMinimap() {
+    if(state==="menu")return;
+    const w=190,h=132,x=innerWidth-w-14,y=65;
+    ctx.fillStyle="rgba(30,18,10,.84)";roundRect(ctx,x,y,w,h,14);ctx.fill();
+    ctx.strokeStyle="rgba(255,255,255,.15)";ctx.stroke();
+    const mx=x+10,my=y+10,mw=w-20,mh=h-20;
+    ctx.fillStyle="#b8752c";ctx.fillRect(mx,my,mw,mh);
+    tents.forEach(t=>{
+      ctx.fillStyle=t.sealed?"#7ee081":t.boss?"#c68cff":t.hue==="red"?"#ef476f":"#57c7ff";
+      ctx.beginPath();ctx.arc(mx+t.x/WORLD.w*mw,my+t.y/WORLD.h*mh,t.sealed?3:4.5,0,TAU);ctx.fill();
+    });
+    ctx.fillStyle="#fff4ad";ctx.beginPath();ctx.arc(mx+player.x/WORLD.w*mw,my+player.y/WORLD.h*mh,4,0,TAU);ctx.fill();
+    ctx.strokeStyle="rgba(255,255,255,.42)";ctx.strokeRect(mx+camera.x/WORLD.w*mw,my+camera.y/WORLD.h*mh,innerWidth/WORLD.w*mw,innerHeight/WORLD.h*mh);
+  }
+
+  function drawVignette() {
+    const g=ctx.createRadialGradient(innerWidth/2,innerHeight/2,Math.min(innerWidth,innerHeight)*.2,innerWidth/2,innerHeight/2,Math.max(innerWidth,innerHeight)*.75);
+    g.addColorStop(.55,"rgba(0,0,0,0)");g.addColorStop(1,"rgba(35,14,4,.35)");
+    ctx.fillStyle=g;ctx.fillRect(0,0,innerWidth,innerHeight);
+  }
+
+  function roundRect(c,x,y,w,h,r){
+    const rr=Math.min(r,w/2,h/2);c.beginPath();c.moveTo(x+rr,y);c.arcTo(x+w,y,x+w,y+h,rr);
+    c.arcTo(x+w,y+h,x,y+h,rr);c.arcTo(x,y+h,x,y,rr);c.arcTo(x,y,x+w,y,rr);c.closePath();
+  }
+  function drawHeart(x,y,size,color){
+    ctx.save();ctx.translate(x,y);ctx.fillStyle=color;ctx.beginPath();ctx.moveTo(0,size*.35);
+    ctx.bezierCurveTo(-size*1.2,-size*.45,-size*.95,-size*1.15,-size*.38,-size*1.05);
+    ctx.bezierCurveTo(-size*.08,-size,0,-size*.72,0,-size*.55);
+    ctx.bezierCurveTo(0,-size*.72,size*.08,-size,size*.38,-size*1.05);
+    ctx.bezierCurveTo(size*.95,-size*1.15,size*1.2,-size*.45,0,size*.35);ctx.fill();ctx.restore();
+  }
+
+  function unlockAudio(){
+    if(!audioCtx){const AC=window.AudioContext||window.webkitAudioContext;if(AC)audioCtx=new AC();}
+    if(audioCtx?.state==="suspended")audioCtx.resume();
+  }
+  function beep(freq,duration,type="sine",volume=.03){
+    if(audioMuted||!audioCtx)return;
+    const now=audioCtx.currentTime,osc=audioCtx.createOscillator(),gain=audioCtx.createGain();
+    osc.type=type;osc.frequency.setValueAtTime(freq,now);gain.gain.setValueAtTime(volume,now);
+    gain.gain.exponentialRampToValueAtTime(.0001,now+duration);osc.connect(gain).connect(audioCtx.destination);
+    osc.start(now);osc.stop(now+duration);
+  }
+  function chord(notes,duration){notes.forEach((n,i)=>setTimeout(()=>beep(n,duration,"triangle",.025),i*55));}
+
+  function buildKeyboard() {
+    const rows = ["qwertyuiop","asdfghjkl","zxcvbnm"];
+    const keyboard=$("onscreenKeyboard");
+    keyboard.innerHTML="";
+    rows.join("").split("").forEach(letter=>{
+      const b=document.createElement("button");b.textContent=letter.toUpperCase();
+      b.addEventListener("click",()=>spellInput(letter));keyboard.appendChild(b);
+    });
+    const back=document.createElement("button");back.textContent="⌫";back.className="wide";back.addEventListener("click",backspaceSpell);keyboard.appendChild(back);
+    const hear=document.createElement("button");hear.textContent="HEAR";hear.className="wide";hear.addEventListener("click",speakSelected);keyboard.appendChild(hear);
+    const cast=document.createElement("button");cast.textContent="CAST";cast.className="wide";cast.addEventListener("click",castSpell);keyboard.appendChild(cast);
+  }
+  buildKeyboard();
+
+  document.addEventListener("keydown",e=>{
+    const k=e.key.toLowerCase();
+    if(["arrowup","arrowdown","arrowleft","arrowright"," ","backspace"].includes(k))e.preventDefault();
+
+    if(state==="playing"){
+      if(["arrowup","arrowdown","arrowleft","arrowright","shift"].includes(k)){keys.add(k);return;}
+      if(k==="p"){togglePause();return;}
+      if(k===" "){focusMode?leaveFocus():enterFocus(true);return;}
+      if(k==="escape"){leaveFocus();return;}
+      if(k==="backspace"){backspaceSpell();return;}
+      if(k==="enter"){castSpell();return;}
+      if(k==="h"){speakSelected();return;}
+      if(/^[a-z']$/i.test(e.key)){spellInput(e.key);return;}
+    } else if(state==="paused"&&k==="p"){
+      togglePause();
+    }
+  });
+  document.addEventListener("keyup",e=>keys.delete(e.key.toLowerCase()));
+
+  document.querySelectorAll(".move-key").forEach(btn=>{
+    const key=btn.dataset.key;
+    const down=e=>{e.preventDefault();keys.add(key);};
+    const up=e=>{e.preventDefault();keys.delete(key);};
+    btn.addEventListener("pointerdown",down);
+    btn.addEventListener("pointerup",up);
+    btn.addEventListener("pointercancel",up);
+    btn.addEventListener("pointerleave",up);
+  });
+  $("touchSprint").addEventListener("pointerdown",e=>{e.preventDefault();keys.add("shift");});
+  ["pointerup","pointercancel","pointerleave"].forEach(type=>$("touchSprint").addEventListener(type,e=>{e.preventDefault();keys.delete("shift");}));
+
+  $("startButton").addEventListener("click",beginSession);
+  $("instructionsButton").addEventListener("click",()=>{returnPanel="start";showPanel("instructions");});
+  $("recordsButton").addEventListener("click",()=>{renderRecords();showPanel("records");});
+  document.querySelectorAll(".close-instructions").forEach(b=>b.addEventListener("click",()=>showPanel(returnPanel)));
+  document.querySelectorAll(".close-records").forEach(b=>b.addEventListener("click",()=>showPanel("start")));
+  $("pauseInstructionsButton").addEventListener("click",()=>{returnPanel="pause";showPanel("instructions");});
+  $("resumeButton").addEventListener("click",togglePause);
+  $("endSessionButton").addEventListener("click",()=>finishSession("ended"));
+  $("pauseButton").addEventListener("click",()=>{if(state==="playing"||state==="paused")togglePause();});
+  $("focusButton").addEventListener("click",()=>focusMode?leaveFocus():enterFocus(true));
+  $("hearButton").addEventListener("click",speakSelected);
+  $("backspaceButton").addEventListener("click",backspaceSpell);
+  $("castButton").addEventListener("click",castSpell);
+  $("cancelSpellButton").addEventListener("click",()=>leaveFocus());
+  $("downloadReportButton").addEventListener("click",downloadSessionCSV);
+  $("printReportButton").addEventListener("click",()=>print());
+  $("playAgainButton").addEventListener("click",()=>{
+    showPanel("start");state="menu";$("spellPanel").classList.add("hidden");updateReturningSummary();draw();
+  });
+  $("exportAllButton").addEventListener("click",exportAllRecords);
+  $("clearRecordsButton").addEventListener("click",()=>{
+    if(confirm("Delete every saved student record from this browser?")){
+      profiles={};saveJSON(STORAGE_KEY,profiles);renderRecords();updateReturningSummary();
+    }
+  });
+  $("muteButton").addEventListener("click",()=>{
+    audioMuted=!audioMuted;$("muteButton").textContent=audioMuted?"🔇":"🔊";unlockAudio();if(!audioMuted)beep(540,.07);
+  });
+  $("fullscreenButton").addEventListener("click",()=>{
+    if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();
+    else document.exitFullscreen?.();
+  });
+
+  function loop(now){
+    if(state!=="playing"){draw();return;}
+    const dt=Math.min(.034,(now-last)/1000||.016);
+    last=now;update(dt);draw();requestAnimationFrame(loop);
+  }
+
+  updateReturningSummary();
+  initWorld();
+  draw();
+})();
+</script>
+</body>
+</html>

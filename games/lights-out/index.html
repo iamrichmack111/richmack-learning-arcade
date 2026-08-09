@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Lights Out</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="startScreen" class="screen active">
+    <div class="panel">
+      <h1>🔦 LIGHTS OUT</h1>
+      <p class="tagline">Your flashlight is your lifeline.</p>
+      <p>Correct answers recharge the battery. Wrong answers drain it. When the light dies, follow the sound until you earn power again.</p>
+      <label>Player name <input id="playerName" maxlength="20" placeholder="Enter name" /></label>
+      <label>Difficulty
+        <select id="difficulty">
+          <option value="easy">Easy</option>
+          <option value="medium" selected>Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+      </label>
+      <button id="startBtn">ENTER THE DARK</button>
+      <p class="small">Controls: WASD / Arrow keys · E to answer nearby terminal · M to mute</p>
+    </div>
+  </div>
+
+  <div id="gameUI" class="hidden">
+    <div id="hud">
+      <div><strong id="nameLabel">Player</strong></div>
+      <div>Battery <span id="batteryText">100%</span></div>
+      <div class="batteryShell"><div id="batteryBar"></div></div>
+      <div>Score <span id="scoreText">0</span></div>
+      <div>Correct <span id="correctText">0</span> · Wrong <span id="wrongText">0</span></div>
+      <div id="modeText">FLASHLIGHT ONLINE</div>
+    </div>
+    <canvas id="game" width="960" height="600"></canvas>
+    <div id="message"></div>
+  </div>
+
+  <div id="questionModal" class="modal hidden">
+    <div class="modalCard">
+      <div class="eyebrow">POWER TERMINAL</div>
+      <h2 id="questionText"></h2>
+      <div id="answers"></div>
+      <button id="closeQuestion" class="ghost">Back away</button>
+    </div>
+  </div>
+
+  <div id="endScreen" class="screen hidden">
+    <div class="panel">
+      <h1>YOU ESCAPED</h1>
+      <p id="finalStats"></p>
+      <button id="restartBtn">PLAY AGAIN</button>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

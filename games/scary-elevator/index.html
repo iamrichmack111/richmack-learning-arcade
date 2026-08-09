@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Scary Elevator 3D</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<canvas id="scene"></canvas>
+<div id="grain"></div>
+<div id="flash"></div>
+
+<main id="gameUI" class="hidden">
+  <header class="hud">
+    <div class="brand">SCARY <span>ELEVATOR</span></div>
+    <div class="display-box"><small>FLOOR</small><b id="floorLabel">1</b></div>
+    <div class="display-box"><small>QUESTION</small><b><span id="questionNum">1</span>/5</b></div>
+  </header>
+
+  <section class="floor-progress">
+    <div class="progress-copy"><span>Correct this floor</span><span id="correctCount">0 / 5</span></div>
+    <div class="progress"><div id="progressBar"></div></div>
+    <div id="needLabel" class="need-label">Need 3 correct to go up.</div>
+  </section>
+
+  <section id="questionCard" class="question-card">
+    <div id="subjectBadge" class="subject-badge">MATH</div>
+    <h2 id="questionText">Loading…</h2>
+    <div id="subText" class="subtext"></div>
+    <div id="answerArea"></div>
+    <div id="feedback" class="feedback" aria-live="polite"></div>
+  </section>
+
+  <div id="elevatorMessage" class="elevator-message" aria-live="polite"></div>
+</main>
+
+<section id="startScreen" class="overlay">
+  <div class="panel">
+    <div class="eyebrow">3D EDUCATIONAL HORROR</div>
+    <h1>SCARY<br><span>ELEVATOR</span></h1>
+    <p>
+      Five questions per floor. Get enough right and the elevator climbs.
+      Wrong answers can open the doors on floors that do not belong in the building.
+    </p>
+    <input id="playerName" maxlength="24" placeholder="Enter player name">
+    <div class="selector">
+      <button class="mode selected" data-mode="mixed">Math + Spelling</button>
+      <button class="mode" data-mode="math">Math Only</button>
+      <button class="mode" data-mode="spelling">Spelling Only</button>
+    </div>
+    <div class="selector">
+      <button class="grade selected" data-grade="easy">Easy</button>
+      <button class="grade" data-grade="medium">Medium</button>
+      <button class="grade" data-grade="hard">Hard</button>
+    </div>
+    <button id="startBtn" class="primary">ENTER THE ELEVATOR</button>
+    <p class="tiny">Move the mouse to look around the cab. Reach Floor 10 to escape.</p>
+  </div>
+</section>
+
+<section id="creepyScreen" class="overlay hidden">
+  <div class="floor-caption">
+    <div id="creepyNumber" class="creepy-number">FLOOR 13</div>
+    <h2 id="creepyTitle">The doors open…</h2>
+    <p id="creepyText"></p>
+    <button id="returnBtn" class="primary">CLOSE THE DOORS</button>
+  </div>
+</section>
+
+<section id="floorResultScreen" class="overlay hidden">
+  <div class="panel">
+    <div class="eyebrow">FLOOR REPORT</div>
+    <h2 id="floorResultTitle">Floor Complete</h2>
+    <div id="floorResultStats"></div>
+    <button id="nextFloorBtn" class="primary">CONTINUE</button>
+  </div>
+</section>
+
+<section id="endScreen" class="overlay hidden">
+  <div class="panel">
+    <div class="eyebrow">FINAL REPORT</div>
+    <h2 id="endTitle">You escaped.</h2>
+    <div id="finalStats"></div>
+    <div class="end-buttons">
+      <button id="restartBtn" class="primary">PLAY AGAIN</button>
+      <button id="exportBtn">EXPORT GRADES CSV</button>
+    </div>
+  </div>
+</section>
+
+<script src="game.js"></script>
+</body>
+</html>

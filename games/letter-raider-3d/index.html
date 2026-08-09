@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Letter Raider 3D: The Lost Alphabet</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main id="game"></main>
+
+  <div id="hud" class="hidden">
+    <section class="mission-card">
+      <span class="label">EXPEDITION</span>
+      <strong id="mission-title">Mission A: Adventure Crystal</strong>
+      <small id="player-hud">Explorer: —</small>
+      <small id="mission-hud">Press M to change letter missions.</small>
+      <small id="objective">Follow the radar to the selected crystal.</small>
+    </section>
+
+    <section class="progress-card">
+      <div class="row">
+        <span>Letters recovered</span>
+        <strong id="letter-count">0 / 26</strong>
+      </div>
+      <div class="bar"><div id="letter-bar"></div></div>
+      <div id="alphabet"></div>
+    </section>
+
+    <canvas id="radar" width="180" height="180"></canvas>
+
+    <section id="battle-hud" class="battle-card hidden">
+      <span class="label">CAVE TRIAL</span>
+      <div class="battle-row"><span>Stone soldiers</span><strong id="enemy-count">4</strong></div>
+      <div class="battle-row"><span>Explorer health</span><strong id="health-text">100</strong></div>
+      <div class="health-track"><div id="health-bar"></div></div>
+      <small id="battle-instruction">Left-click to shoot. Defeat all four soldiers.</small>
+    </section>
+
+    <div id="interaction">
+      <kbd>E</kbd>
+      <span>Hold to mine letter</span>
+    </div>
+
+    <div id="mining">
+      <strong id="mining-title">Mining...</strong>
+      <div class="bar"><div id="mining-bar"></div></div>
+    </div>
+
+    <div id="toast"></div>
+    <div id="crosshair"></div>
+  </div>
+
+  <section id="start-screen" class="screen visible">
+    <div class="panel hero">
+      <p class="label">REAL-TIME 3D SPELLING ADVENTURE</p>
+      <h1>LETTER RAIDER</h1>
+      <h2>The Lost Alphabet</h2>
+      <p>
+        Choose a letter mission, cross the jungle ruins, mine its crystal,
+        defeat four stone soldiers in a cave trial, enter the portal, and spell
+        any word beginning with that letter.
+      </p>
+
+      <div class="controls">
+        <div><kbd>W A S D</kbd><span>Move</span></div>
+        <div><kbd>Mouse</kbd><span>Look / shoot</span></div>
+        <div><kbd>Shift</kbd><span>Sprint</span></div>
+        <div><kbd>Space</kbd><span>Jump</span></div>
+        <div><kbd>E</kbd><span>Mine</span></div>
+        <div><kbd>M</kbd><span>Next mission</span></div>
+      </div>
+
+      <div class="name-entry">
+        <label for="player-name-input">Explorer name</label>
+        <input
+          id="player-name-input"
+          type="text"
+          maxlength="24"
+          autocomplete="name"
+          placeholder="Enter the child's name"
+        >
+        <p id="name-feedback" role="status"></p>
+      </div>
+
+      <div class="mission-picker">
+        <label for="mission-select-start">Starting letter mission</label>
+        <select id="mission-select-start" aria-label="Starting letter mission"></select>
+        <small>Each mission ends with four cave soldiers and a spelling portal.</small>
+      </div>
+
+      <button id="start-btn">BEGIN EXPEDITION</button>
+      <button id="reset-btn" class="secondary">RESET SAVED PROGRESS</button>
+      <small class="notice">Desktop keyboard and mouse recommended.</small>
+    </div>
+  </section>
+
+  <section id="pause-screen" class="screen">
+    <div class="panel compact">
+      <p class="label">EXPEDITION PAUSED</p>
+      <h2 id="pause-title">Return to the mission?</h2>
+      <div class="mission-picker pause-picker">
+        <label for="mission-select-pause">Change letter mission</label>
+        <select id="mission-select-pause" aria-label="Change letter mission"></select>
+        <button id="apply-mission-btn" class="secondary">CHANGE MISSION</button>
+      </div>
+      <button id="resume-btn">RESUME</button>
+    </div>
+  </section>
+
+  <section id="spell-screen" class="screen">
+    <div class="panel spell-panel">
+      <div id="challenge-letter">A</div>
+      <p class="label">LETTER CRYSTAL DISCOVERED</p>
+      <h2>Name a word for this letter</h2>
+      <p id="challenge-clue"></p>
+      <p id="challenge-hint"></p>
+      <form id="spell-form" autocomplete="off">
+        <input id="spell-input" type="text" spellcheck="false" placeholder="Type the word">
+        <button type="submit">UNLOCK LETTER</button>
+      </form>
+      <p id="spell-feedback"></p>
+    </div>
+  </section>
+
+  <section id="win-screen" class="screen">
+    <div class="panel hero">
+      <p class="label">EXPEDITION COMPLETE</p>
+      <h1>ALPHABET RESTORED</h1>
+      <p><strong id="final-name">Explorer</strong> mined every crystal and completed all 26 spelling trials.</p>
+
+      <div class="grade-result">
+        <span class="label">FINAL SPELLING GRADE</span>
+        <strong id="final-grade">A</strong>
+        <span id="final-grade-message">Excellent accuracy!</span>
+      </div>
+
+      <div class="stats">
+        <div><strong id="final-time">00:00</strong><span>Time</span></div>
+        <div><strong id="final-errors">0</strong><span>Wrong attempts</span></div>
+        <div><strong id="final-accuracy">100%</strong><span>Accuracy</span></div>
+        <div><strong>26 / 26</strong><span>Letters</span></div>
+      </div>
+      <button id="play-again-btn">PLAY AGAIN</button>
+    </div>
+  </section>
+
+  <script type="module" src="game.js"></script>
+</body>
+</html>

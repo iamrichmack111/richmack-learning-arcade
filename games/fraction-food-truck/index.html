@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Fraction Food Truck</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">🍕</div>
+        <div>
+          <h1>Fraction Food Truck</h1>
+          <p>Serve it right. Earn it. Upgrade it.</p>
+        </div>
+      </div>
+      <div class="hud">
+        <div class="stat"><span>💵</span><strong id="money">$0</strong></div>
+        <div class="stat"><span>⭐</span><strong id="score">0</strong></div>
+        <div class="stat"><span>🔥</span><strong id="streak">0</strong></div>
+        <div class="stat"><span>🏆</span><strong id="level">1</strong></div>
+      </div>
+    </header>
+
+    <main>
+      <section id="startScreen" class="screen active">
+        <div class="hero-card">
+          <div class="truck-preview">
+            <div id="truckStart" class="truck truck-blue">
+              <div class="awning"></div>
+              <div class="truck-body">
+                <div class="window"><span>🍔</span><span>🥛</span><span>🍕</span></div>
+                <div class="truck-title">FRACTION<br>FOOD TRUCK</div>
+              </div>
+              <div class="wheel left"></div><div class="wheel right"></div>
+            </div>
+          </div>
+          <div class="intro">
+            <span class="eyebrow">MATH COOKING ADVENTURE</span>
+            <h2>Can you run the busiest food truck in town?</h2>
+            <p>Customers order fractional portions, ingredient ratios, recipe scaling, and measurements. Solve each order correctly before patience runs out.</p>
+
+            <label for="playerName">Chef name</label>
+            <input id="playerName" maxlength="18" placeholder="Enter your name" />
+
+            <div class="difficulty-row">
+              <button class="difficulty selected" data-difficulty="easy">Easy<br><small>Fractions</small></button>
+              <button class="difficulty" data-difficulty="medium">Medium<br><small>Fractions + Ratios</small></button>
+              <button class="difficulty" data-difficulty="hard">Hard<br><small>Scaling + Mixed</small></button>
+            </div>
+
+            <button id="startBtn" class="primary">🚚 Open the Truck</button>
+
+            <div class="mini-stats">
+              <div><b id="bestMoney">$0</b><span>Best Cash</span></div>
+              <div><b id="bestScore">0</b><span>Best Score</span></div>
+              <div><b id="bestGrade">—</b><span>Best Grade</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="gameScreen" class="screen">
+        <div class="street-scene">
+          <div class="sky">
+            <div class="cloud c1">☁</div><div class="cloud c2">☁</div>
+            <div class="city">
+              <div class="building b1"></div><div class="building b2"></div><div class="building b3"></div>
+              <div class="building b4"></div><div class="building b5"></div>
+            </div>
+          </div>
+
+          <div class="game-layout">
+            <aside class="customer-panel">
+              <div class="panel-title">CUSTOMER</div>
+              <div id="customerAvatar" class="customer-avatar">🧑🏽‍🦱</div>
+              <h3 id="customerName">Maya</h3>
+              <div class="patience-label"><span>Patience</span><span id="patienceText">100%</span></div>
+              <div class="patience-track"><div id="patienceBar"></div></div>
+              <div class="tip-box">Potential tip<br><strong id="tipValue">$3</strong></div>
+            </aside>
+
+            <section class="order-card">
+              <div class="order-head">
+                <div>
+                  <span class="tag" id="questionType">FRACTION ORDER</span>
+                  <h2>Order #<span id="orderNumber">1</span></h2>
+                </div>
+                <div id="foodIcon" class="food-icon">🍕</div>
+              </div>
+
+              <div id="orderText" class="order-text">Loading order...</div>
+              <div id="visualModel" class="visual-model"></div>
+
+              <div id="answerArea" class="answer-area"></div>
+              <div id="feedback" class="feedback"></div>
+              <button id="submitBtn" class="primary serve-btn">Serve Order 🍽️</button>
+            </section>
+
+            <aside class="truck-panel">
+              <div class="panel-title">YOUR TRUCK</div>
+              <div id="truckGame" class="truck mini truck-blue">
+                <div class="awning"></div>
+                <div class="truck-body">
+                  <div class="window"><span>🍔</span><span>🥛</span><span>🍕</span></div>
+                  <div class="truck-title">FRACTION<br>FOOD TRUCK</div>
+                </div>
+                <div class="wheel left"></div><div class="wheel right"></div>
+              </div>
+
+              <div class="progress-block">
+                <div><span>Level progress</span><span id="xpText">0 / 100</span></div>
+                <div class="xp-track"><div id="xpBar"></div></div>
+              </div>
+
+              <button id="shopBtn" class="secondary">🛠️ Upgrade Truck</button>
+              <button id="endBtn" class="ghost">End Shift</button>
+            </aside>
+          </div>
+          <div class="road"><div class="dash-line"></div></div>
+        </div>
+      </section>
+
+      <section id="resultsScreen" class="screen">
+        <div class="results-card">
+          <div id="gradeBadge" class="grade-badge">A</div>
+          <span class="eyebrow">SHIFT COMPLETE</span>
+          <h2 id="resultTitle">Great work, Chef!</h2>
+          <p id="resultSummary">You kept the customers happy.</p>
+
+          <div class="results-grid">
+            <div><span>Correct</span><b id="rCorrect">0</b></div>
+            <div><span>Orders</span><b id="rOrders">0</b></div>
+            <div><span>Accuracy</span><b id="rAccuracy">0%</b></div>
+            <div><span>Money</span><b id="rMoney">$0</b></div>
+            <div><span>Best Streak</span><b id="rStreak">0</b></div>
+            <div><span>Truck Level</span><b id="rLevel">1</b></div>
+          </div>
+
+          <div class="results-actions">
+            <button id="playAgainBtn" class="primary">Play Again</button>
+            <button id="exportBtn" class="secondary">📄 Export Grade</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div id="shopModal" class="modal hidden">
+      <div class="modal-card">
+        <button id="closeShop" class="close">×</button>
+        <span class="eyebrow">TRUCK GARAGE</span>
+        <h2>Upgrade your food truck</h2>
+        <p>Spend your earnings on permanent style upgrades for this shift.</p>
+        <div id="shopItems" class="shop-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

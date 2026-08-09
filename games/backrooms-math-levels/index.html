@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>The Backrooms: Math Levels</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <canvas id="game"></canvas>
+  <div id="ceilingGlow"></div>
+  <div id="vignette"></div>
+  <div id="noise"></div>
+
+  <section id="startScreen" class="screen">
+    <div class="panel start-panel">
+      <div class="eyebrow">RICHMACK EDUCATIONAL HORROR</div>
+      <h1>THE BACKROOMS:<br><span>MATH LEVELS</span></h1>
+      <p class="lede">
+        Endless yellow rooms. Buzzing lights. No windows. No way back.
+        Solve the math hidden in each level to reveal an exit. Open supply doors for survival gear before the entity finds you.
+      </p>
+
+      <label for="studentName">Student name</label>
+      <input id="studentName" maxlength="32" placeholder="Enter your name">
+
+      <div class="actions">
+        <button id="startBtn" class="primary">Enter Level 0</button>
+        <button id="gradesBtn">View Grades</button>
+      </div>
+
+      <div class="controls">
+        <b>Controls</b>
+        <span>WASD — move</span>
+        <span>Mouse — look</span>
+        <span>Shift — sprint</span>
+        <span>E — terminal / supply door / exit</span>
+        <span>M — toggle minimap</span>
+        <span>Esc — release mouse</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="quizModal" class="modal hidden">
+    <div class="panel quiz-panel">
+      <div id="levelTag" class="level-tag">LEVEL 0</div>
+      <h2 id="quizHeading">Math Terminal</h2>
+      <div id="quizProgress" class="quiz-progress"></div>
+      <p id="quizQuestion" class="question"></p>
+      <div id="answers" class="answers"></div>
+      <div id="feedback" class="feedback"></div>
+    </div>
+  </section>
+
+  <section id="transitionScreen" class="screen hidden">
+    <div class="panel transition-panel">
+      <div id="transitionLevel" class="eyebrow"></div>
+      <h2 id="transitionTitle">You found an exit.</h2>
+      <p id="transitionText"></p>
+      <button id="nextLevelBtn" class="primary">Enter Next Level</button>
+    </div>
+  </section>
+
+  <section id="gradesScreen" class="screen hidden">
+    <div class="panel grades-panel">
+      <div class="head-row">
+        <div>
+          <div class="eyebrow">LOCAL GRADEBOOK</div>
+          <h2>Saved Runs</h2>
+        </div>
+        <button id="closeGrades">Back</button>
+      </div>
+      <div class="actions compact">
+        <button id="exportGrades">Export CSV</button>
+        <button id="clearGrades" class="danger">Clear Grades</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th><th>Grade</th><th>Score</th><th>Level</th>
+              <th>Wrong</th><th>Result</th><th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="gradesBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="resultScreen" class="screen hidden">
+    <div class="panel result-panel">
+      <div class="eyebrow">RUN COMPLETE</div>
+      <h2 id="resultTitle">You Escaped</h2>
+      <div id="bigGrade" class="big-grade">A</div>
+      <div id="resultStats" class="result-stats"></div>
+      <div class="actions center">
+        <button id="playAgain" class="primary">Start Over</button>
+        <button id="resultGrades">View Grades</button>
+      </div>
+    </div>
+  </section>
+
+  <aside id="hud" class="hud hidden">
+    <div class="hud-top">
+      <div>
+        <div class="hud-label">STUDENT</div>
+        <div id="hudName" class="hud-value">—</div>
+      </div>
+      <div>
+        <div class="hud-label">LEVEL</div>
+        <div id="hudLevel" class="hud-value">0</div>
+      </div>
+      <div>
+        <div class="hud-label">SOLVED</div>
+        <div id="hudSolved" class="hud-value">0 / 4</div>
+      </div>
+      <div>
+        <div class="hud-label">ACCURACY</div>
+        <div id="hudAccuracy" class="hud-value">100%</div>
+      </div>
+      <div>
+        <div class="hud-label">ENTITY</div>
+        <div id="hudThreat" class="hud-value threat">QUIET</div>
+      </div>
+    </div>
+
+    <div id="crosshair">+</div>
+    <div id="prompt" class="prompt hidden"></div>
+    <div id="objective" class="objective">Find four math terminals.</div>
+
+    <div id="mapWrap" class="map-wrap">
+      <canvas id="miniMap" width="220" height="220"></canvas>
+      <div class="map-label">M — map</div>
+    </div>
+  </aside>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="game.js"></script>
+</body>
+</html>

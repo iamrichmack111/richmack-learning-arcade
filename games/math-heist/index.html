@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Math Heist</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+    <section id="startScreen" class="screen active">
+      <div class="panel hero">
+        <div class="eyebrow">RICHMACK LEARNING GAME</div>
+        <h1>🕵️‍♂️ MATH HEIST</h1>
+        <p class="tagline">Crack the code. Beat the security. Escape with the loot.</p>
+
+        <div class="mission-cards">
+          <div class="mission-card">
+            <div class="mission-icon">🏦</div>
+            <b>Bank Break-In</b>
+            <span>Addition & subtraction</span>
+          </div>
+          <div class="mission-card">
+            <div class="mission-icon">🏛️</div>
+            <b>Museum Job</b>
+            <span>Multiplication & division</span>
+          </div>
+          <div class="mission-card">
+            <div class="mission-icon">🔐</div>
+            <b>Master Vault</b>
+            <span>Mixed challenge problems</span>
+          </div>
+        </div>
+
+        <label class="name-label">
+          Agent name
+          <input id="playerName" maxlength="18" placeholder="Enter your name" autocomplete="off" />
+        </label>
+
+        <div class="controls-note">
+          <span><kbd>WASD</kbd> or <kbd>Arrow Keys</kbd> move</span>
+          <span><kbd>E</kbd> interact</span>
+        </div>
+        <button id="startBtn" class="primary">START HEIST</button>
+      </div>
+    </section>
+
+    <section id="gameScreen" class="screen">
+      <header class="hud">
+        <div><small>AGENT</small><strong id="hudName">Agent</strong></div>
+        <div><small>LOCATION</small><strong id="hudLocation">Bank</strong></div>
+        <div><small>LOOT</small><strong id="hudLoot">$0</strong></div>
+        <div><small>ACCURACY</small><strong id="hudAccuracy">100%</strong></div>
+        <div><small>CHALLENGES</small><strong><span id="hudSolved">0</span>/15</strong></div>
+      </header>
+
+      <main class="game-shell">
+        <canvas id="game" width="960" height="540"></canvas>
+        <div id="missionBanner" class="mission-banner"></div>
+        <div id="toast" class="toast"></div>
+
+        <aside class="side-panel">
+          <h3>HEIST OBJECTIVES</h3>
+          <div id="objectiveText">Reach the first security terminal.</div>
+          <div class="progress-wrap">
+            <div class="progress-label"><span>Mission Progress</span><span id="progressText">0%</span></div>
+            <div class="progress"><div id="progressFill"></div></div>
+          </div>
+          <div class="legend">
+            <div><span class="swatch blue"></span> You</div>
+            <div><span class="swatch cyan"></span> Math terminal</div>
+            <div><span class="swatch gold"></span> Loot</div>
+            <div><span class="swatch red"></span> Security zone</div>
+            <div><span class="swatch green"></span> Exit</div>
+          </div>
+          <p class="tip">Tip: harder terminals pay more loot.</p>
+        </aside>
+      </main>
+    </section>
+
+    <section id="quizModal" class="modal hidden">
+      <div class="quiz-card">
+        <div class="difficulty" id="quizDifficulty">SECURITY LEVEL 1</div>
+        <h2 id="quizTitle">Security Terminal</h2>
+        <p id="quizPrompt">Solve the problem to continue.</p>
+        <div id="equation" class="equation">8 + 7 = ?</div>
+        <input id="answerInput" type="number" inputmode="numeric" autocomplete="off" />
+        <div id="quizFeedback" class="feedback"></div>
+        <button id="submitAnswer" class="primary">UNLOCK</button>
+      </div>
+    </section>
+
+    <section id="endScreen" class="screen">
+      <div class="panel result-panel">
+        <div class="eyebrow">HEIST COMPLETE</div>
+        <h1 id="resultTitle">Mission Report</h1>
+        <div id="gradeBadge" class="grade-badge">A</div>
+        <div class="results-grid">
+          <div><small>Correct</small><strong id="resultCorrect">0 / 15</strong></div>
+          <div><small>Accuracy</small><strong id="resultAccuracy">0%</strong></div>
+          <div><small>Total Loot</small><strong id="resultLoot">$0</strong></div>
+          <div><small>Best Streak</small><strong id="resultStreak">0</strong></div>
+        </div>
+        <p id="resultMessage"></p>
+        <div class="result-actions">
+          <button id="playAgain" class="primary">PLAY AGAIN</button>
+          <button id="downloadReport" class="secondary">DOWNLOAD GRADE</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

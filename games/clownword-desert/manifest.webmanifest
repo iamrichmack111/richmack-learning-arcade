@@ -1,0 +1,17 @@
+{
+  "name": "ClownWord Desert 2.0",
+  "short_name": "ClownWord",
+  "description": "A graded 2D sight-word spelling adventure with saved student profiles.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#17100b",
+  "theme_color": "#c7772d",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

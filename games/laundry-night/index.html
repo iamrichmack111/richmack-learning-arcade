@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Laundry Night</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="game" class="game-shell">
+    <div class="grain"></div>
+    <header class="hud">
+      <div>
+        <div class="eyebrow">RICHMACK EDUCATIONAL HORROR</div>
+        <h1>LAUNDRY NIGHT</h1>
+      </div>
+      <div class="hud-right">
+        <span id="clock">11:47 PM</span>
+        <button id="soundBtn" class="ghost-btn" aria-pressed="true">🔊 Sound</button>
+      </div>
+    </header>
+
+    <main>
+      <section id="intro" class="screen active">
+        <div class="room-scene">
+          <div class="ceiling-light"></div>
+          <div class="pipe pipe-a"></div>
+          <div class="pipe pipe-b"></div>
+          <div class="washer washer-1"><div class="washer-door"><div class="laundry-swirl"></div></div></div>
+          <div class="washer washer-2"><div class="washer-door"><div class="laundry-swirl slow"></div></div></div>
+          <div class="dryer"><div class="dryer-door"></div></div>
+          <div class="monster" id="monster"></div>
+          <div class="floor-grid"></div>
+        </div>
+
+        <div class="intro-card panel">
+          <p class="kicker">THE HOUSE IS ASLEEP.</p>
+          <h2>Something in the laundry room chooses what gets washed.</h2>
+          <p>Each day, two loads are selected. Complete the learning challenge to seal each basket and add it to today’s laundry.</p>
+          <div class="feature-row">
+            <span>🧺 Daily shuffle</span><span>➗ Math</span><span>🔤 Spelling</span><span>💾 Saved history</span>
+          </div>
+          <label class="name-label">Player name
+            <input id="playerName" maxlength="24" placeholder="Enter name" autocomplete="off" />
+          </label>
+          <div class="actions">
+            <button id="startBtn" class="primary-btn">ENTER THE LAUNDRY ROOM</button>
+            <button id="historyBtn" class="ghost-btn">VIEW LAUNDRY HISTORY</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="daily" class="screen">
+        <div class="daily-wrap">
+          <div class="panel mission-card">
+            <p class="kicker">TODAY'S ASSIGNMENT</p>
+            <h2 id="dailyTitle">The baskets are moving...</h2>
+            <p id="dailySub">Two loads have been chosen. Pass both challenges before midnight.</p>
+            <div id="loadCards" class="load-grid"></div>
+            <div class="actions">
+              <button id="reshuffleBtn" class="ghost-btn">↻ Reshuffle Today</button>
+              <button id="backHomeBtn" class="ghost-btn">← Main Menu</button>
+            </div>
+          </div>
+
+          <div class="panel status-card">
+            <h3>Night Status</h3>
+            <div class="meter-label"><span>Danger</span><span id="dangerText">Quiet</span></div>
+            <div class="danger-meter"><div id="dangerFill"></div></div>
+            <p id="dangerHint">Wrong answers make the room less safe.</p>
+            <div class="today-summary" id="todaySummary"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="challenge" class="screen">
+        <div class="challenge-layout">
+          <div class="basket-stage">
+            <div class="shadow-creature" id="shadowCreature"></div>
+            <div class="basket" id="basketVisual">
+              <div class="basket-holes"></div>
+              <div class="clothes">👕 🧦 🩳</div>
+            </div>
+            <div class="basket-label" id="basketLabel">DARKS</div>
+          </div>
+
+          <div class="panel question-card">
+            <div class="question-top">
+              <span id="subjectTag" class="subject-tag">MATH</span>
+              <span id="progressText">Question 1 / 10</span>
+            </div>
+            <div class="progress-track"><div id="progressFill"></div></div>
+            <h2 id="questionText">7 × 8 = ?</h2>
+            <p id="questionHint" class="question-hint"></p>
+            <form id="answerForm">
+              <input id="answerInput" autocomplete="off" spellcheck="false" placeholder="Type your answer" />
+              <button class="primary-btn" type="submit">SUBMIT</button>
+            </form>
+            <div id="feedback" class="feedback" aria-live="polite"></div>
+            <div class="stats-row">
+              <span>Correct: <strong id="correctStat">0</strong></span>
+              <span>Wrong: <strong id="wrongStat">0</strong></span>
+              <span>Grade: <strong id="gradeStat">—</strong></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="result" class="screen">
+        <div class="panel result-card">
+          <p class="kicker">LOAD SEALED</p>
+          <h2 id="resultTitle">Towels are safe.</h2>
+          <div class="grade-orb" id="gradeOrb">A</div>
+          <p id="resultScore">9 / 10 correct</p>
+          <p id="resultMessage">The washer door locks. Something scratches from inside the wall.</p>
+          <div class="actions">
+            <button id="continueBtn" class="primary-btn">RETURN TO THE ROOM</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="history" class="screen">
+        <div class="panel history-card">
+          <p class="kicker">LAUNDRY LOG</p>
+          <h2>What has already been washed?</h2>
+          <div id="historyList" class="history-list"></div>
+          <div class="actions">
+            <button id="clearHistoryBtn" class="ghost-btn danger">Clear History</button>
+            <button id="historyBackBtn" class="primary-btn">BACK</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">Wrong answers wake the room. Correct answers decide the laundry.</footer>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

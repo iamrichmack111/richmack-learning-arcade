@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Cabin 13 — First Person Survival Math Horror</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="vignette"></div>
+<div id="damageFlash"></div>
+
+<div id="hud" class="hidden">
+  <div class="topbar">
+    <div class="logo">CABIN <span>13</span></div>
+    <div id="nightLabel">Night 1 / 5</div>
+    <div id="clockLabel">8:00 PM</div>
+  </div>
+
+  <div class="resources">
+    <div>🥫 FOOD <b id="foodVal">8</b></div>
+    <div>🪵 WOOD <b id="woodVal">7</b></div>
+    <div>🔫 AMMO <b id="ammoVal">15</b></div>
+    <div>🩹 MED <b id="medVal">2</b></div>
+    <div>💵 CASH <b id="cashVal">$30</b></div>
+    <div class="threat">☠ THREAT <b id="threatVal">0%</b></div>
+  </div>
+
+  <div class="meter health-meter"><label>HEALTH</label><div><span id="healthBar"></span></div></div>
+  <div class="meter fire-meter"><label>FIRE</label><div><span id="fireBar"></span></div></div>
+
+  <div id="objective">Search the woods for supply sites.</div>
+  <div id="interaction"></div>
+  <div id="message"></div>
+  <div id="crosshair">+</div>
+</div>
+
+<section id="startScreen" class="screen">
+  <div class="panel">
+    <div class="eyebrow">FIRST-PERSON SURVIVAL MATH HORROR</div>
+    <h1>CABIN <span>13</span></h1>
+    <p class="tagline">Walk into the woods. Your math decides what comes back out.</p>
+    <p>
+      Survive five nights in a first-person forest. Search abandoned supply sites,
+      keep the fire alive, and defend yourself. Fractions, ratios, percentages,
+      and budgeting control your survival resources.
+    </p>
+    <input id="playerName" maxlength="24" placeholder="Enter survivor name">
+    <div class="difficulties">
+      <button class="difficulty selected" data-diff="normal">Normal</button>
+      <button class="difficulty" data-diff="hard">Hard</button>
+      <button class="difficulty" data-diff="nightmare">Nightmare</button>
+    </div>
+    <button id="startBtn" class="primary">ENTER THE WOODS</button>
+    <div class="controls">
+      <span><b>WASD</b> walk</span>
+      <span><b>Mouse</b> look</span>
+      <span><b>Click</b> shoot</span>
+      <span><b>E</b> search</span>
+      <span><b>F</b> feed fire</span>
+      <span><b>H</b> medicine</span>
+      <span><b>Shift</b> sprint</span>
+    </div>
+  </div>
+</section>
+
+<section id="mathModal" class="screen hidden">
+  <div class="panel math-panel">
+    <div id="challengeType" class="eyebrow">SUPPLY CHECK</div>
+    <h2 id="mathTitle">Supply Search</h2>
+    <div id="mathQuestion" class="question"></div>
+    <div id="answerChoices" class="answers"></div>
+    <div id="mathFeedback" class="feedback"></div>
+    <div id="mathHint" class="hint"></div>
+  </div>
+</section>
+
+<section id="dayScreen" class="screen hidden">
+  <div class="panel">
+    <div class="eyebrow">DAWN REPORT</div>
+    <h2 id="dayTitle">You survived the night.</h2>
+    <div id="daySummary"></div>
+    <button id="continueBtn" class="primary">FACE THE NEXT NIGHT</button>
+  </div>
+</section>
+
+<section id="endScreen" class="screen hidden">
+  <div class="panel">
+    <div class="eyebrow">FINAL REPORT</div>
+    <h2 id="endTitle">You survived Cabin 13.</h2>
+    <div id="finalStats"></div>
+    <div class="endbuttons">
+      <button id="restartBtn" class="primary">PLAY AGAIN</button>
+      <button id="exportBtn">EXPORT GRADES CSV</button>
+    </div>
+  </div>
+</section>
+
+<script src="game.js"></script>
+</body>
+</html>

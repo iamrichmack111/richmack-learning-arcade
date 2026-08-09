@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Snow Calendar Rider 3D</title>
+<style>
+:root{font-family:Inter,system-ui,sans-serif;color:#fff;background:#071526}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden}
+body{background:radial-gradient(circle at 50% 10%,#58a8da,#123858 48%,#06101c)}
+canvas{display:block;width:100%;height:100%}
+.hidden{display:none!important}
+#hud{position:fixed;z-index:5;left:50%;top:12px;transform:translateX(-50%);display:flex;gap:8px;justify-content:center;width:min(950px,calc(100% - 20px));flex-wrap:wrap}
+.card{min-width:90px;padding:8px 12px;border:1px solid #ffffff55;border-radius:14px;text-align:center;background:#071d34bb;backdrop-filter:blur(9px);box-shadow:0 8px 25px #0004}
+.card.wide{min-width:190px}.card span{display:block;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;opacity:.75}.card b{display:block;margin-top:2px;font-size:1.02rem}.target{color:#ffe45e}
+.screen{position:fixed;inset:0;z-index:20;display:none;place-items:center;padding:20px;background:linear-gradient(#07182d55,#04101ddd)}
+.screen.show{display:grid}.panel{width:min(690px,100%);padding:34px;border-radius:28px;text-align:center;background:#0a2949e8;border:1px solid #ffffff44;box-shadow:0 28px 80px #0008;backdrop-filter:blur(14px)}
+.panel.small{max-width:450px}.badge{display:inline-block;padding:7px 12px;border-radius:999px;background:#ffe45e;color:#17314a;font-size:.72rem;font-weight:900;letter-spacing:.12em}
+h1{font-size:clamp(2.7rem,8vw,5.2rem);line-height:.92;margin:16px 0 12px;text-shadow:0 7px 24px #0006}h2{font-size:3rem;margin:5px 0 12px}.panel p{color:#d8efff;line-height:1.55;font-size:1.02rem}
+.rules{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:23px 0}.rules div{padding:13px 8px;border-radius:14px;background:#ffffff12}.rules b,.rules span{display:block}.rules b{color:#ffe45e}.rules span{font-size:.77rem;margin-top:3px;opacity:.8}
+button{border:0;border-radius:999px;padding:14px 25px;background:linear-gradient(135deg,#ffe45e,#ffae44);color:#17314a;font:900 1rem system-ui;cursor:pointer;box-shadow:0 8px 24px #ffb33755}
+.note{font-size:.78rem!important;opacity:.75}
+#message{position:fixed;z-index:12;top:105px;left:50%;transform:translate(-50%,-8px);opacity:0;padding:11px 18px;border-radius:999px;background:#071d34e8;border:1px solid #ffffff55;font-weight:900;pointer-events:none;transition:.2s;white-space:nowrap;max-width:calc(100% - 25px);overflow:hidden;text-overflow:ellipsis}
+#message.show{opacity:1;transform:translate(-50%,0)}#message.good{color:#90ffa4}#message.bad{color:#ff9696}
+#mobile{position:fixed;z-index:14;left:50%;bottom:17px;transform:translateX(-50%);display:flex;gap:17px}
+#mobile button{width:65px;height:65px;padding:0;border-radius:50%;background:#08233ddb;color:white;border:1px solid #ffffff55;font-size:1.4rem;touch-action:none}
+@media(max-width:680px){.card{min-width:65px;padding:6px 7px}.card.wide{min-width:150px}.card span{font-size:.54rem}.card b{font-size:.85rem}#message{top:92px}.panel{padding:24px 18px}.rules{grid-template-columns:1fr}.rules div{padding:8px}}
+@media(pointer:fine){#mobile{display:none!important}}
+</style>
+</head>
+<body>
+<div id="game"></div>
+<div id="hud" class="hidden">
+ <div class="card"><span>Score</span><b id="score">0</b></div>
+ <div class="card"><span>Coins</span><b id="coins">0</b></div>
+ <div class="card wide"><span>Collect Next</span><b class="target" id="target">Monday</b></div>
+ <div class="card"><span>Lives</span><b id="lives">❤❤❤</b></div>
+ <div class="card"><span>Speed</span><b id="level">1</b></div>
+</div>
+<div id="message"></div>
+<section id="start" class="screen show">
+ <div class="panel">
+  <div class="badge">3D LEARNING GAME</div>
+  <h1>Snow Calendar Rider</h1>
+  <p>Race down the snowy mountain, avoid trees, rocks, and logs, then collect the days of the week and months of the year in the correct order.</p>
+  <div class="rules">
+   <div><b>+10 coins</b><span>Each correct word</span></div>
+   <div><b>3 lives</b><span>Avoid obstacles</span></div>
+   <div><b>Faster rides</b><span>Finish each set</span></div>
+  </div>
+  <button id="startBtn">Start Riding</button>
+  <p class="note">A/D or arrow keys to steer • Space to jump • P to pause</p>
+ </div>
+</section>
+<section id="over" class="screen">
+ <div class="panel small">
+  <h2>Ride Over</h2>
+  <p id="final"></p>
+  <button id="againBtn">Ride Again</button>
+ </div>
+</section>
+<div id="mobile" class="hidden">
+ <button data-control="left">◀</button>
+ <button data-control="jump">▲</button>
+ <button data-control="right">▶</button>
+</div>
+
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js"}}</script>
+<script type="module">
+import * as THREE from "three";
+
+const DAYS=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+const MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
+const $=s=>document.querySelector(s);
+const ui={hud:$("#hud"),score:$("#score"),coins:$("#coins"),target:$("#target"),lives:$("#lives"),level:$("#level"),msg:$("#message"),start:$("#start"),over:$("#over"),final:$("#final"),mobile:$("#mobile")};
+
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0x83c8ed);
+scene.fog=new THREE.FogExp2(0xb9e3f7,.011);
+const camera=new THREE.PerspectiveCamera(58,innerWidth/innerHeight,.1,500);
+camera.position.set(0,7.2,12);
+const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:"high-performance"});
+renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.shadowMap.enabled=true;renderer.outputColorSpace=THREE.SRGBColorSpace;
+$("#game").appendChild(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xf1fbff,0x18354e,2.2));
+const sun=new THREE.DirectionalLight(0xffffff,2.4);sun.position.set(-14,25,8);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);scene.add(sun);
+
+const world=new THREE.Group();scene.add(world);
+const snowMat=new THREE.MeshStandardMaterial({color:0xf6fcff,roughness:.95});
+const ground=[];
+for(let i=0;i<7;i++){const g=new THREE.Mesh(new THREE.PlaneGeometry(54,55),snowMat);g.rotation.x=-Math.PI/2;g.position.z=12-i*55;g.receiveShadow=true;world.add(g);ground.push(g)}
+function mountain(x,z,s,c){const m=new THREE.Mesh(new THREE.ConeGeometry(10,24,5),new THREE.MeshStandardMaterial({color:c,roughness:1}));m.position.set(x,8,z);m.scale.setScalar(s);m.rotation.y=Math.random()*Math.PI;world.add(m)}
+for(let i=0;i<25;i++){const side=i%2?1:-1;mountain(side*(28+Math.random()*25),-20-i*21,.65+Math.random()*1.25,i%3?0xc3dbe7:0x94b7ca)}
+
+function playerModel(){
+ const p=new THREE.Group();
+ const board=new THREE.Mesh(new THREE.BoxGeometry(2.5,.18,4.6),new THREE.MeshStandardMaterial({color:0xff5353,roughness:.5}));board.position.y=.25;board.castShadow=true;p.add(board);
+ const body=new THREE.Mesh(new THREE.CapsuleGeometry(.46,1.35,6,10),new THREE.MeshStandardMaterial({color:0x286ad2}));body.position.y=1.55;body.castShadow=true;p.add(body);
+ const head=new THREE.Mesh(new THREE.SphereGeometry(.42,18,14),new THREE.MeshStandardMaterial({color:0xefb48b}));head.position.y=2.72;head.castShadow=true;p.add(head);
+ const hat=new THREE.Mesh(new THREE.ConeGeometry(.5,1.05,16),new THREE.MeshStandardMaterial({color:0xffdb43}));hat.position.y=3.25;p.add(hat);
+ p.position.set(0,0,4.5);scene.add(p);return p
+}
+const player=playerModel();
+
+const snow=(()=>{const n=750,a=new Float32Array(n*3);for(let i=0;i<n;i++){a[i*3]=(Math.random()-.5)*52;a[i*3+1]=Math.random()*24;a[i*3+2]=15-Math.random()*180}const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.BufferAttribute(a,3));const p=new THREE.Points(g,new THREE.PointsMaterial({color:0xffffff,size:.11,transparent:true,opacity:.9}));scene.add(p);return p})();
+
+function rounded(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
+function labelSprite(text){
+ const c=document.createElement("canvas"),x=c.getContext("2d");x.font=`900 ${text.length>8?58:72}px system-ui`;c.width=Math.max(340,Math.ceil(x.measureText(text).width+80));c.height=140;
+ x.font=`900 ${text.length>8?58:72}px system-ui`;x.textAlign="center";x.textBaseline="middle";x.fillStyle="#fffffff5";rounded(x,4,4,c.width-8,132,28);x.fill();x.lineWidth=7;x.strokeStyle="#8ed2ff";x.stroke();x.fillStyle="#17314a";x.fillText(text,c.width/2,70);
+ const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true}));s.scale.set(c.width/95,1.5,1);return s
+}
+
+const items=[],obstacles=[],keys={left:false,right:false,jump:false};
+let running=false,paused=false,score=0,coins=0,lives=3,level=1,speed=20,set=DAYS,index=0,round=0,spawn=0,obsSpawn=0,time=0,vx=0,jumpV=0,onGround=true,msgTime=0,immune=0;
+const clock=new THREE.Clock();
+const target=()=>set[index];
+
+function updateUI(){ui.score.textContent=score;ui.coins.textContent=coins;ui.target.textContent=target();ui.lives.textContent="❤".repeat(lives)+"♡".repeat(3-lives);ui.level.textContent=level}
+function message(text,type="good"){ui.msg.textContent=text;ui.msg.className=`show ${type}`;msgTime=1.45}
+
+function addWord(word){
+ const group=new THREE.Group();
+ const gem=new THREE.Mesh(new THREE.OctahedronGeometry(1.2),new THREE.MeshStandardMaterial({color:word===target()?0xffdb4d:0x54cfff,emissive:word===target()?0x694800:0x003b5b,emissiveIntensity:.42,roughness:.25}));
+ gem.castShadow=true;gem.rotation.z=Math.PI/4;group.add(gem);
+ const label=labelSprite(word);label.position.y=2.05;group.add(label);
+ group.position.set((Math.random()-.5)*19,1.65,-102-Math.random()*31);group.userData={kind:"word",word,radius:1.65};world.add(group);items.push(group)
+}
+function choices(){const wanted=target(),pool=[...set].filter(v=>v!==wanted),list=[wanted];while(list.length<3){list.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0])}list.sort(()=>Math.random()-.5).forEach(addWord)}
+
+function tree(){
+ const g=new THREE.Group(),tr=new THREE.Mesh(new THREE.CylinderGeometry(.3,.44,2.3,8),new THREE.MeshStandardMaterial({color:0x6b4328}));tr.position.y=1.15;tr.castShadow=true;g.add(tr);
+ const mat=new THREE.MeshStandardMaterial({color:0x126044,roughness:.9});for(let i=0;i<3;i++){const c=new THREE.Mesh(new THREE.ConeGeometry(1.75-i*.27,3.1,9),mat);c.position.y=2.3+i*1.12;c.castShadow=true;g.add(c)}g.userData.radius=1.25;return g
+}
+function rock(){const r=new THREE.Mesh(new THREE.DodecahedronGeometry(1.25),new THREE.MeshStandardMaterial({color:0x70818c,roughness:1}));r.scale.set(1.2,.8,1);r.position.y=.75;r.castShadow=true;r.userData.radius=1.2;return r}
+function log(){const l=new THREE.Mesh(new THREE.CylinderGeometry(.65,.65,4.8,10),new THREE.MeshStandardMaterial({color:0x714424,roughness:.9}));l.rotation.z=Math.PI/2;l.position.y=.68;l.castShadow=true;l.userData.radius=2.1;return l}
+function addObstacle(){const n=Math.random(),o=n<.55?tree():n<.82?rock():log();o.position.x=(Math.random()-.5)*20;o.position.z=-105-Math.random()*35;o.userData.kind="obstacle";world.add(o);obstacles.push(o)}
+
+function clearObjects(){for(const arr of [items,obstacles])while(arr.length){const o=arr.pop();world.remove(o)}}
+function reset(){clearObjects();score=0;coins=0;lives=3;level=1;speed=20;set=DAYS;index=0;round=0;spawn=.2;obsSpawn=.5;time=0;vx=0;jumpV=0;onGround=true;immune=0;paused=false;player.position.set(0,0,4.5);player.rotation.set(0,0,0);player.visible=true;updateUI()}
+function start(){reset();running=true;ui.start.classList.remove("show");ui.over.classList.remove("show");ui.hud.classList.remove("hidden");ui.mobile.classList.remove("hidden");message("Collect Monday first!");clock.start()}
+function gameOver(){running=false;ui.hud.classList.add("hidden");ui.mobile.classList.add("hidden");ui.final.textContent=`You scored ${score} points, earned ${coins} coins, and reached speed level ${level}.`;ui.over.classList.add("show")}
+
+function advance(){
+ score+=100;index++;
+ if(index>=set.length){
+  round++;
+  if(set===DAYS){set=MONTHS;index=0;level++;speed+=3;message("Great! Now collect the months in order!")}
+  else{set=DAYS;index=0;level++;speed+=3;score+=250;message(`Calendar round ${round+1}! Speed increased!`)}
+ }else message(`Correct! Next: ${target()}`);
+ updateUI()
+}
+function collect(o){
+ if(o.userData.word===target()){coins+=10;score+=25;advance()}
+ else{score=Math.max(0,score-15);message(`That was ${o.userData.word}. Find ${target()}!`,"bad");updateUI()}
+ world.remove(o);items.splice(items.indexOf(o),1)
+}
+function hit(o){if(immune>0)return;immune=1.5;lives--;score=Math.max(0,score-30);message("Ouch! Dodge the obstacles!","bad");vx+=(player.position.x<=o.position.x?-1:1)*7;updateUI();if(lives<=0)gameOver()}
+
+function updatePlayer(dt){
+ const steer=(keys.right?1:0)-(keys.left?1:0);vx+=steer*29*dt;vx*=Math.pow(.045,dt);player.position.x+=vx*dt;player.position.x=THREE.MathUtils.clamp(player.position.x,-10.5,10.5);
+ player.rotation.z=THREE.MathUtils.lerp(player.rotation.z,-steer*.34,1-Math.pow(.001,dt));player.rotation.y=THREE.MathUtils.lerp(player.rotation.y,-steer*.12,1-Math.pow(.001,dt));
+ if(keys.jump&&onGround){jumpV=8.4;onGround=false;keys.jump=false}
+ if(!onGround){jumpV-=20*dt;player.position.y+=jumpV*dt;player.rotation.x=THREE.MathUtils.lerp(player.rotation.x,-jumpV*.025,.15);if(player.position.y<=0){player.position.y=0;jumpV=0;onGround=true;player.rotation.x=0}}
+}
+function moveObjects(dt){
+ const actual=speed+Math.min(12,time*.13);ground.forEach(g=>{g.position.z+=actual*dt;if(g.position.z>45)g.position.z-=ground.length*55});
+ const move=arr=>{for(let i=arr.length-1;i>=0;i--){const o=arr[i];o.position.z+=actual*dt;if(o.userData.kind==="word"){o.rotation.y+=dt*1.7;o.position.y=1.65+Math.sin(time*3+i)*.2}
+  const d=Math.hypot(o.position.x-player.position.x,o.position.z-player.position.z);
+  if(d<(o.userData.radius||1.2)+.72&&Math.abs(o.position.y-player.position.y)<2.7){if(o.userData.kind==="word")collect(o);else{hit(o);world.remove(o);arr.splice(i,1)}continue}
+  if(o.position.z>18){world.remove(o);arr.splice(i,1)}
+ }};
+ move(items);move(obstacles);spawn-=dt;obsSpawn-=dt;
+ if(spawn<=0&&items.length<5){choices();spawn=4.1}
+ if(obsSpawn<=0){addObstacle();if(Math.random()>.63)addObstacle();obsSpawn=Math.max(.48,1.12-level*.07)+Math.random()*.42}
+}
+function updateSnow(dt){const p=snow.geometry.attributes.position;for(let i=0;i<p.count;i++){let y=p.getY(i)-dt*(5+i%4),z=p.getZ(i)+dt*(8+i%6);if(y<0)y=23;if(z>18)z=-165;p.setY(i,y);p.setZ(i,z)}p.needsUpdate=true}
+function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04);if(running&&!paused){time+=dt;if(immune>0){immune-=dt;player.visible=Math.floor(immune*10)%2===0}else player.visible=true;updatePlayer(dt);moveObjects(dt);updateSnow(dt)}
+ if(msgTime>0){msgTime-=dt;if(msgTime<=0)ui.msg.className=""}
+ camera.position.x=THREE.MathUtils.lerp(camera.position.x,player.position.x*.22,.05);camera.lookAt(player.position.x*.08,1.5,-17);renderer.render(scene,camera)}
+animate();
+
+addEventListener("keydown",e=>{if(["ArrowLeft","ArrowRight","Space"].includes(e.code))e.preventDefault();if(e.code==="ArrowLeft"||e.code==="KeyA")keys.left=true;if(e.code==="ArrowRight"||e.code==="KeyD")keys.right=true;if(e.code==="Space")keys.jump=true;if(e.code==="KeyP"&&running){paused=!paused;message(paused?"Paused":"Go!")}});
+addEventListener("keyup",e=>{if(e.code==="ArrowLeft"||e.code==="KeyA")keys.left=false;if(e.code==="ArrowRight"||e.code==="KeyD")keys.right=false});
+document.querySelectorAll("#mobile button").forEach(b=>{const k=b.dataset.control,down=e=>{e.preventDefault();keys[k]=true},up=e=>{e.preventDefault();keys[k]=false};b.addEventListener("pointerdown",down);b.addEventListener("pointerup",up);b.addEventListener("pointercancel",up);b.addEventListener("pointerleave",up)});
+$("#startBtn").onclick=start;$("#againBtn").onclick=start;
+addEventListener("resize",()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,2))});
+</script>
+</body>
+</html>

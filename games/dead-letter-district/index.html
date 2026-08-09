@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="A 3D zombie spelling game. Spell words to earn ammunition and upgrade your weapon." />
+  <title>Dead Letter District</title>
+  <link rel="stylesheet" href="style.css" />
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="game"></div>
+
+  <div id="damageFlash"></div>
+  <div id="crosshair" aria-hidden="true">
+    <span></span>
+    <span></span>
+  </div>
+
+  <section id="hud" aria-label="Game status">
+    <div class="hud-card">
+      <span class="label">HEALTH</span>
+      <div class="bar"><div id="healthBar"></div></div>
+      <strong id="healthText">100</strong>
+    </div>
+
+    <div class="hud-card ammo-card">
+      <span class="label">AMMO</span>
+      <strong id="ammoText">20</strong>
+      <span id="ammoBonus">Press F to spell</span>
+    </div>
+
+    <div class="hud-card stats-card">
+      <div><span class="label">GUN</span><strong id="gunText">Pistol</strong></div>
+      <div><span class="label">CORRECT</span><strong id="correctText">0</strong></div>
+      <div><span class="label">WAVE</span><strong id="waveText">1</strong></div>
+      <div><span class="label">SCORE</span><strong id="scoreText">0</strong></div>
+    </div>
+  </section>
+
+  <div id="message" role="status" aria-live="polite"></div>
+
+  <section id="startScreen" class="overlay visible">
+    <div class="panel hero-panel">
+      <p class="eyebrow">RICHMACK LEARNING GAMES</p>
+      <h1>DEAD LETTER<br />DISTRICT</h1>
+      <p class="lead">
+        Survive the zombie outbreak by spelling words correctly.
+        Every correct word earns ammunition. Harder words award extra bullets.
+      </p>
+
+      <div class="rules-grid">
+        <div><strong>20</strong><span>Starting ammo</span></div>
+        <div><strong>+10</strong><span>Minimum per word</span></div>
+        <div><strong>10</strong><span>Words per upgrade</span></div>
+      </div>
+
+      <button id="startButton" class="primary-button">ENTER THE DISTRICT</button>
+      <p class="controls">
+        WASD move · Mouse aim · Click shoot · F spell for ammo · ESC pause
+      </p>
+    </div>
+  </section>
+
+  <section id="pauseScreen" class="overlay">
+    <div class="panel compact-panel">
+      <p class="eyebrow">GAME PAUSED</p>
+      <h2>The street is still dangerous.</h2>
+      <button id="resumeButton" class="primary-button">RESUME</button>
+      <button id="pauseSpellButton" class="secondary-button">SPELL FOR AMMO</button>
+    </div>
+  </section>
+
+  <section id="spellingScreen" class="overlay">
+    <div class="panel spelling-panel">
+      <p class="eyebrow">AMMO CHALLENGE</p>
+      <div id="difficultyBadge" class="difficulty basic">BASIC · +10 BULLETS</div>
+      <p class="prompt">Type this word exactly:</p>
+      <h2 id="wordPrompt">survival</h2>
+
+      <form id="spellingForm" autocomplete="off">
+        <label class="sr-only" for="spellingInput">Spell the displayed word</label>
+        <input
+          id="spellingInput"
+          type="text"
+          inputmode="text"
+          spellcheck="false"
+          autocapitalize="off"
+          placeholder="Type the word here"
+        />
+        <button class="primary-button" type="submit">SUBMIT WORD</button>
+      </form>
+
+      <p id="spellingFeedback" aria-live="polite"></p>
+      <button id="closeSpellingButton" class="text-button" type="button">Return to game</button>
+    </div>
+  </section>
+
+  <section id="gameOverScreen" class="overlay">
+    <div class="panel hero-panel">
+      <p class="eyebrow danger">THE DISTRICT FELL</p>
+      <h1>GAME OVER</h1>
+      <div class="final-stats">
+        <div><span>Score</span><strong id="finalScore">0</strong></div>
+        <div><span>Correct words</span><strong id="finalCorrect">0</strong></div>
+        <div><span>Wave reached</span><strong id="finalWave">1</strong></div>
+      </div>
+      <button id="restartButton" class="primary-button">TRY AGAIN</button>
+    </div>
+  </section>
+
+  <div id="desktopNotice">
+    This game is designed for a keyboard and mouse.
+  </div>
+
+  <script type="module" src="game.js"></script>
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#07111c" />
+  <title>Equation Outbreak: Road Scholar</title>
+  <link rel="stylesheet" href="style.css" />
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="game"></div>
+
+  <section id="start-screen" class="screen active">
+    <div class="hero-card glass">
+      <p class="eyebrow">MATH • SPELLING • DRIVING • ZOMBIES</p>
+      <h1>Equation Outbreak</h1>
+      <h2>Road Scholar</h2>
+      <p class="intro">
+        The city has been overrun by Minion Zombies. Solve math problems to create fuel,
+        spell words to manufacture ammo, upgrade your car and gun, and clear every mission zone.
+      </p>
+
+      <div class="form-grid">
+        <label>
+          Driver name
+          <input id="player-name" maxlength="24" placeholder="Enter your name" autocomplete="off" />
+        </label>
+        <label>
+          School grade
+          <select id="school-grade">
+            <option value="1">1st Grade</option>
+            <option value="2">2nd Grade</option>
+            <option value="3">3rd Grade</option>
+            <option value="4" selected>4th Grade</option>
+            <option value="5">5th Grade</option>
+            <option value="6">6th Grade</option>
+            <option value="7">7th Grade</option>
+            <option value="8">8th Grade</option>
+          </select>
+        </label>
+      </div>
+
+      <button id="start-button" class="primary">Start the Engine</button>
+      <p class="small-note">Runs in a modern browser. Internet is needed only to load Three.js.</p>
+    </div>
+  </section>
+
+  <section id="loading-screen" class="screen">
+    <div class="loading-card glass">
+      <div class="loader"></div>
+      <h2>Building the city…</h2>
+      <p>Painting roads, waking traffic, and hiding zombies.</p>
+    </div>
+  </section>
+
+  <div id="hud" class="hidden">
+    <div class="hud-top">
+      <div class="stat-cluster glass">
+        <div class="stat"><span>DRIVER</span><strong id="hud-name">Driver</strong></div>
+        <div class="stat"><span>GRADE</span><strong id="hud-grade">4</strong></div>
+        <div class="stat"><span>SCORE</span><strong id="hud-score">0</strong></div>
+      </div>
+
+      <div class="mission-card glass">
+        <span class="label">CURRENT MISSION</span>
+        <strong id="mission-title">Reach the first outbreak</strong>
+        <p id="mission-detail">Follow the yellow beacon.</p>
+      </div>
+
+      <div class="stat-cluster glass right">
+        <div class="meter-block">
+          <div class="meter-label"><span>GAS</span><strong id="gas-text">70%</strong></div>
+          <div class="meter"><i id="gas-meter"></i></div>
+        </div>
+        <div class="meter-block">
+          <div class="meter-label"><span>HEALTH</span><strong id="health-text">100%</strong></div>
+          <div class="meter"><i id="health-meter"></i></div>
+        </div>
+        <div class="stat"><span>AMMO</span><strong id="ammo-text">20</strong></div>
+      </div>
+    </div>
+
+    <div class="hud-bottom">
+      <div class="controls glass" id="drive-controls">
+        <b>DRIVE</b> W/S accelerate • A/D steer • Space brake • M math • P spelling • E mission
+      </div>
+      <div class="controls glass hidden" id="combat-controls">
+        <b>COMBAT</b> WASD move • Mouse aim • Click shoot • Shift sprint • P spelling • E return to car
+      </div>
+      <canvas id="minimap" width="220" height="220" aria-label="City minimap"></canvas>
+    </div>
+
+    <div id="speedometer" class="glass">
+      <strong id="speed-value">0</strong><span>MPH</span>
+      <small id="vehicle-level">Starter Coupe</small>
+    </div>
+
+    <div id="weapon-card" class="glass">
+      <span>WEAPON</span>
+      <strong id="weapon-name">Rusty Blaster</strong>
+      <small id="spelling-progress">0 correct words</small>
+    </div>
+
+    <div id="message-toast"></div>
+    <div id="crosshair" class="hidden"><i></i><i></i></div>
+  </div>
+
+  <section id="quiz-panel" class="overlay-panel hidden" aria-modal="true">
+    <div class="quiz-card glass">
+      <button id="close-quiz" class="icon-button" aria-label="Close quiz">×</button>
+      <p class="eyebrow" id="quiz-type">FUEL STATION</p>
+      <h2 id="quiz-title">Solve for gas</h2>
+      <p id="quiz-prompt" class="quiz-prompt">7 + 8 = ?</p>
+      <input id="quiz-answer" autocomplete="off" spellcheck="false" />
+      <button id="submit-answer" class="primary">Submit Answer</button>
+      <p id="quiz-feedback" class="feedback"></p>
+      <div class="quiz-reward" id="quiz-reward">Correct answers create fuel.</div>
+    </div>
+  </section>
+
+  <section id="pause-panel" class="overlay-panel hidden">
+    <div class="quiz-card glass">
+      <p class="eyebrow">GAME PAUSED</p>
+      <h2>Road Scholar Menu</h2>
+      <button id="resume-button" class="primary">Resume</button>
+      <button id="download-report-button" class="secondary">Download Grade Report</button>
+      <button id="restart-button" class="danger">Restart Game</button>
+    </div>
+  </section>
+
+  <section id="finish-panel" class="overlay-panel hidden">
+    <div class="finish-card glass">
+      <p class="eyebrow">CITY SAVED</p>
+      <h2 id="finish-title">Excellent driving!</h2>
+      <div id="final-grade" class="final-grade">A</div>
+      <p id="finish-summary"></p>
+      <div class="finish-actions">
+        <button id="finish-download" class="primary">Download Grade Report</button>
+        <button id="finish-restart" class="secondary">Play Again</button>
+      </div>
+    </div>
+  </section>
+
+  <script type="module" src="game.js"></script>
+</body>
+</html>

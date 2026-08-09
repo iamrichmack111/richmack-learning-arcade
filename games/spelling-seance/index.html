@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Spelling Séance</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <canvas id="room"></canvas>
+  <div id="fog"></div>
+  <div id="vignette"></div>
+
+  <section id="startScreen" class="screen visible">
+    <div class="panel start-panel">
+      <div class="eyebrow">RICHMACK EDUCATIONAL HORROR</div>
+      <h1>SPELLING<br><span>SÉANCE</span></h1>
+      <p class="lede">
+        A ghost is trying to tell you what happened to it — but every word arrives misspelled.
+        Correct the spelling, recover the message, and uncover a mystery that grows darker with every chapter.
+      </p>
+
+      <label for="studentName">Student name</label>
+      <input id="studentName" maxlength="32" placeholder="Enter your name" autocomplete="name">
+
+      <div class="actions">
+        <button id="startBtn" class="primary">Begin the Séance</button>
+        <button id="gradesBtn">View Grades</button>
+      </div>
+
+      <div class="controls">
+        <b>How to play</b>
+        <span>Read the ghost's misspelled word.</span>
+        <span>Type the correct spelling.</span>
+        <span>Press Enter or click Submit.</span>
+        <span>Wrong answers strengthen the haunting.</span>
+        <span>Complete each chapter to reveal a clue.</span>
+        <span>Finish all chapters to solve the mystery.</span>
+      </div>
+    </div>
+  </section>
+
+  <aside id="hud" class="hud hidden">
+    <div class="hud-top">
+      <div>
+        <div class="hud-label">STUDENT</div>
+        <div id="hudName" class="hud-value">—</div>
+      </div>
+      <div>
+        <div class="hud-label">CHAPTER</div>
+        <div id="hudChapter" class="hud-value">1 / 6</div>
+      </div>
+      <div>
+        <div class="hud-label">ACCURACY</div>
+        <div id="hudAccuracy" class="hud-value">100%</div>
+      </div>
+      <div>
+        <div class="hud-label">HAUNTING</div>
+        <div id="hudHaunting" class="hud-value safe">CALM</div>
+      </div>
+    </div>
+  </aside>
+
+  <main id="gameUI" class="game-ui hidden">
+    <div class="story-card">
+      <div class="chapter-label" id="chapterLabel">CHAPTER I</div>
+      <h2 id="chapterTitle">The Empty Chair</h2>
+      <p id="chapterIntro"></p>
+    </div>
+
+    <div class="seance-table">
+      <div class="candle candle-left"><div class="flame"></div></div>
+      <div class="candle candle-right"><div class="flame"></div></div>
+
+      <div id="ghost" class="ghost">
+        <div class="ghost-head">
+          <div class="ghost-eye left"></div>
+          <div class="ghost-eye right"></div>
+          <div class="ghost-mouth"></div>
+        </div>
+        <div class="ghost-body"></div>
+      </div>
+
+      <div class="message-box">
+        <div class="message-label">THE SPIRIT WRITES:</div>
+        <div id="wrongWord" class="wrong-word">freind</div>
+        <div id="wordHint" class="word-hint"></div>
+
+        <form id="answerForm">
+          <input id="answerInput" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type the correct spelling">
+          <button class="primary" type="submit">Submit</button>
+        </form>
+
+        <div id="feedback" class="feedback"></div>
+
+        <div class="progress-track">
+          <div id="progressBar" class="progress-bar"></div>
+        </div>
+        <div id="wordProgress" class="word-progress">Word 1 of 5</div>
+      </div>
+    </div>
+
+    <div class="clue-card">
+      <div class="clue-title">Recovered Message</div>
+      <div id="recoveredMessage" class="recovered-message">_ _ _ _ _</div>
+    </div>
+  </main>
+
+  <section id="chapterScreen" class="screen hidden">
+    <div class="panel chapter-panel">
+      <div id="chapterCompleteLabel" class="eyebrow">CHAPTER COMPLETE</div>
+      <h2 id="chapterCompleteTitle">The Empty Chair</h2>
+      <div id="chapterClue" class="chapter-clue"></div>
+      <p id="chapterNarrative"></p>
+      <button id="nextChapterBtn" class="primary">Continue</button>
+    </div>
+  </section>
+
+  <section id="resultScreen" class="screen hidden">
+    <div class="panel result-panel">
+      <div class="eyebrow">THE FINAL MESSAGE</div>
+      <h2 id="resultTitle">The Séance Is Complete</h2>
+      <div id="bigGrade" class="big-grade">A</div>
+      <div id="finalMystery" class="final-mystery"></div>
+      <div id="resultStats" class="result-stats"></div>
+      <div class="actions center">
+        <button id="playAgain" class="primary">Play Again</button>
+        <button id="resultGrades">View Grades</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="gradesScreen" class="screen hidden">
+    <div class="panel grades-panel">
+      <div class="grades-head">
+        <div>
+          <div class="eyebrow">LOCAL GRADEBOOK</div>
+          <h2>Saved Séances</h2>
+        </div>
+        <button id="closeGrades">Back</button>
+      </div>
+      <div class="actions compact">
+        <button id="exportGrades">Export CSV</button>
+        <button id="clearGrades" class="danger">Clear Grades</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Name</th><th>Grade</th><th>Score</th><th>Wrong</th><th>Chapter</th><th>Result</th><th>Date</th></tr>
+          </thead>
+          <tbody id="gradesBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <div id="jumpscare" class="jumpscare hidden">
+    <div class="jumpscare-face">
+      <div class="js-eye left"></div>
+      <div class="js-eye right"></div>
+      <div class="js-mouth"></div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="game.js"></script>
+</body>
+</html>
