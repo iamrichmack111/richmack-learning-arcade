@@ -128,3 +128,40 @@
 .meta .difficulty{
   color:var(--accent);
 }
+
+/* No-JavaScript fallback */
+.noscript-games{
+  margin:22px 0;
+  padding:22px;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:18px;
+  background:rgba(255,255,255,.04);
+}
+
+.noscript-games h2{
+  margin-top:0;
+}
+
+.noscript-games ul{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:10px;
+  margin:16px 0 0;
+  padding:0;
+  list-style:none;
+}
+
+.noscript-games a{
+  display:block;
+  padding:12px 14px;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:10px;
+  color:var(--accent2);
+  text-decoration:none;
+  font-weight:800;
+}
+
+.noscript-games a:hover,
+.noscript-games a:focus-visible{
+  background:rgba(255,255,255,.07);
+}
