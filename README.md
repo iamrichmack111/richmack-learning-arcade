@@ -1,10 +1,10 @@
 # Richmack Learning Arcade
 
-A local-first educational arcade containing 15 browser games in one launcher. The collection combines math, spelling, calendars, fractions, and other learning tasks with horror, adventure, racing, survival, and arcade-style game loops.
+A local-first educational arcade containing 13 browser games in one launcher. The collection combines math, spelling, calendars, fractions, and other learning tasks with horror, adventure, racing, survival, and arcade-style game loops.
 
 ## Features
 
-- 15 educational games in one launcher
+- 13 educational games in one launcher
 - Horror, Math, Spelling, and Adventure filters
 - Search and random-game launch
 - Local Python web server that automatically selects an available port
@@ -57,8 +57,6 @@ chmod +x install-linux-desktop.sh
 - Equation Outbreak: Road Scholar
 - Cabin 13
 - Fraction Food Truck
-- Letter Raider 3D
-- Spelling Séance
 - Snow Calendar Rider 3D
 - Scary Elevator 3D
 - Lights Out

@@ -4,8 +4,6 @@ const games = [
   {title:'Equation Outbreak: Road Scholar',slug:'equation-outbreak',mark:'🚙',tags:['math','adventure'],desc:'Keep moving through an outbreak using math skills.',colors:['#c36b27','#1b1712']},
   {title:'Cabin 13',slug:'cabin-13',mark:'🌲',tags:['horror','math','adventure'],desc:'First-person survival horror in the woods.',colors:['#284b33','#090e0b']},
   {title:'Fraction Food Truck',slug:'fraction-food-truck',mark:'🍕',tags:['math'],desc:'Fill fraction-based orders and earn your grade.',colors:['#e79c45','#622d25']},
-  {title:'Letter Raider 3D',slug:'letter-raider-3d',mark:'⛏️',tags:['spelling','adventure'],desc:'Mine letters, spell words, fight through missions.',colors:['#9b5f3f','#1a1110']},
-  {title:'Spelling Séance',slug:'spelling-seance',mark:'🕯️',tags:['horror','spelling'],desc:'A haunted spelling challenge by candlelight.',colors:['#6c438f','#160d20']},
   {title:'Snow Calendar Rider 3D',slug:'snow-calendar-rider',mark:'🏂',tags:['adventure'],desc:'Ride through snow while collecting calendar words.',colors:['#63aada','#142637']},
   {title:'Laundry Night',slug:'laundry-night',mark:'🧺',tags:['horror','adventure'],desc:'A creepy late-night learning game in the laundry room.',colors:['#315371','#11161d'],image:'games/laundry-night/assets/laundry-night-gameplay.png'},
   {title:'Scary Elevator 3D',slug:'scary-elevator',mark:'🛗',tags:['horror','math','spelling'],desc:'Answer correctly to climb floors—and avoid the wrong stops.',colors:['#5c365d','#110d13'],image:'games/scary-elevator/screenshots/scary-elevator-3d-gameplay.png'},
@@ -42,3 +40,21 @@ search.addEventListener('input',render);
 document.getElementById('chips').addEventListener('click',e=>{if(!e.target.matches('.chip'))return;document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));e.target.classList.add('active');active=e.target.dataset.filter;render();});
 document.getElementById('randomBtn').addEventListener('click',()=>{const g=games[Math.floor(Math.random()*games.length)];location.href=`games/${g.slug}/index.html`;});
 render();
+
+// Authenticated student identity for time/grade aggregation.
+const studentSelect=document.getElementById('studentSelect');
+function loadActiveStudent(){
+  const active=localStorage.getItem('richmackActiveStudent')||'Student';
+  if(studentSelect){
+    studentSelect.innerHTML=`<option value="${String(active).replaceAll('"','&quot;')}">${active}</option>`;
+    studentSelect.disabled=true;
+  }
+}
+loadActiveStudent();
+
+document.getElementById('studentLogout')?.addEventListener('click',()=>{
+  sessionStorage.removeItem('richmackStudentAuth');
+  sessionStorage.removeItem('richmackStudentUsername');
+  localStorage.removeItem('richmackActiveStudent');
+  location.href='index.html';
+});

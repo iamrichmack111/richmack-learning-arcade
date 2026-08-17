@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Richmack Learning Arcade</title>
+  <link rel="stylesheet" href="arcade.css" />
+</head>
+<body>
+  <div class="fog fog-a"></div><div class="fog fog-b"></div>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">R</div>
+      <div><h1>Richmack Learning Arcade</h1><p>14 educational games • one launcher</p></div>
+    </div>
+    <div class="top-actions">
+      <label class="student-picker">Playing as <select id="studentSelect" aria-label="Active student"><option value="Student">Student</option></select></label>
+      <a class="ghost portal-link" href="parent-login.html">👪 Parent Portal</a>
+      <button class="ghost" id="studentLogout" type="button">Log out</button>
+      <button class="ghost" id="randomBtn" type="button">🎲 Random Game</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div>
+        <span class="eyebrow">RICHMACK GAMES</span>
+        <h2>Learn. Survive. <span>Level up.</span></h2>
+        <p>Math, spelling, fractions, calendars and more—wrapped in horror, adventure, racing and arcade worlds.</p>
+      </div>
+      <div class="stats">
+        <div><strong id="gameCount">14</strong><span>Games</span></div>
+        <div><strong>1</strong><span>Arcade</span></div>
+        <div><strong>∞</strong><span>Replays</span></div>
+      </div>
+    </section>
+
+    <section class="controls" aria-label="Game filters">
+      <label class="search"><span>⌕</span><input id="search" placeholder="Search games..." autocomplete="off" /></label>
+      <div class="chips" id="chips">
+        <button class="chip active" data-filter="all">All</button>
+        <button class="chip" data-filter="horror">Horror</button>
+        <button class="chip" data-filter="math">Math</button>
+        <button class="chip" data-filter="spelling">Spelling</button>
+        <button class="chip" data-filter="adventure">Adventure</button>
+      </div>
+    </section>
+
+    <section class="grid" id="gameGrid"></section>
+    <p class="empty" id="empty">No games match that search.</p>
+  </main>
+
+  <footer>Richmack Learning Arcade • Local game library</footer>
+  <script>
+    if (sessionStorage.getItem('richmackStudentAuth') !== '1') location.replace('index.html');
+  </script>
+  <script src="arcade.js"></script>
+</body>
+</html>

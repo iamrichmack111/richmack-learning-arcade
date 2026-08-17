@@ -187,5 +187,6 @@ document.querySelectorAll("#mobile button").forEach(b=>{const k=b.dataset.contro
 $("#startBtn").onclick=start;$("#againBtn").onclick=start;
 addEventListener("resize",()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,2))});
 </script>
+<script src="../../arcade-tracker.js"></script>
 </body>
 </html>

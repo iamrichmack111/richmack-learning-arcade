@@ -3,49 +3,111 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Richmack Learning Arcade</title>
+  <title>Login • Richmack Learning Arcade</title>
   <link rel="stylesheet" href="arcade.css" />
 </head>
-<body>
+<body class="login-page">
   <div class="fog fog-a"></div><div class="fog fog-b"></div>
-  <header class="topbar">
-    <div class="brand">
-      <div class="logo">R</div>
-      <div><h1>Richmack Learning Arcade</h1><p>15 educational games • one launcher</p></div>
-    </div>
-    <button class="ghost" id="randomBtn" type="button">🎲 Random Game</button>
-  </header>
+  <main class="login-shell auth-shell">
+    <section class="login-brand">
+      <div class="logo login-logo">R</div>
+      <span class="eyebrow">RICHMACK LEARNING ARCADE</span>
+      <h1>Welcome back.</h1>
+      <p>Students log in to keep grades and play time attached to the correct account. New students can create an account below.</p>
+    </section>
 
-  <main>
-    <section class="hero">
+    <section class="login-panel" aria-labelledby="studentLoginTitle">
+      <div class="login-role-icon">🎮</div>
       <div>
-        <span class="eyebrow">RICHMACK GAMES</span>
-        <h2>Learn. Survive. <span>Level up.</span></h2>
-        <p>Math, spelling, fractions, calendars and more—wrapped in horror, adventure, racing and arcade worlds.</p>
+        <span class="eyebrow">STUDENT LOGIN</span>
+        <h2 id="studentLoginTitle">Log In</h2>
       </div>
-      <div class="stats">
-        <div><strong id="gameCount">15</strong><span>Games</span></div>
-        <div><strong>1</strong><span>Arcade</span></div>
-        <div><strong>∞</strong><span>Replays</span></div>
-      </div>
+      <form id="studentLogin" class="login-form auth-form">
+        <label for="loginUsername">Username</label>
+        <input id="loginUsername" name="username" autocomplete="username" required />
+        <label for="loginPassword">Password</label>
+        <input id="loginPassword" name="password" type="password" autocomplete="current-password" required />
+        <button class="portal-btn" type="submit">▶ Log In & Play</button>
+      </form>
+      <p id="loginMsg" class="portal-error auth-message" aria-live="polite"></p>
     </section>
 
-    <section class="controls" aria-label="Game filters">
-      <label class="search"><span>⌕</span><input id="search" placeholder="Search games..." autocomplete="off" /></label>
-      <div class="chips" id="chips">
-        <button class="chip active" data-filter="all">All</button>
-        <button class="chip" data-filter="horror">Horror</button>
-        <button class="chip" data-filter="math">Math</button>
-        <button class="chip" data-filter="spelling">Spelling</button>
-        <button class="chip" data-filter="adventure">Adventure</button>
+    <section class="login-panel" aria-labelledby="signupTitle">
+      <div class="login-role-icon">✨</div>
+      <div>
+        <span class="eyebrow">NEW STUDENT</span>
+        <h2 id="signupTitle">Sign Up</h2>
       </div>
+      <form id="studentSignup" class="login-form auth-form">
+        <label for="displayName">Student name</label>
+        <input id="displayName" name="displayName" autocomplete="name" maxlength="40" required />
+        <label for="signupUsername">Username</label>
+        <input id="signupUsername" name="username" autocomplete="username" minlength="3" maxlength="24" pattern="[A-Za-z0-9_.-]+" required />
+        <label for="signupPassword">Password</label>
+        <input id="signupPassword" name="new-password" type="password" autocomplete="new-password" minlength="4" required />
+        <label for="signupConfirm">Confirm password</label>
+        <input id="signupConfirm" name="confirm-password" type="password" autocomplete="new-password" minlength="4" required />
+        <button class="portal-btn" type="submit">Create Account</button>
+      </form>
+      <p id="signupMsg" class="portal-error auth-message" aria-live="polite"></p>
     </section>
 
-    <section class="grid" id="gameGrid"></section>
-    <p class="empty" id="empty">No games match that search.</p>
+    <section class="login-panel parent-entry auth-parent-entry">
+      <div class="login-role-icon">👪</div>
+      <div>
+        <span class="eyebrow">PARENT ACCESS</span>
+        <h2>Parent Portal</h2>
+        <p class="portal-muted">View student grades, sessions, and time played.</p>
+      </div>
+      <a class="portal-btn secondary login-link" href="parent-login.html">Parent Login</a>
+    </section>
   </main>
 
-  <footer>Richmack Learning Arcade • Local game library</footer>
-  <script src="arcade.js"></script>
+  <footer>Richmack Learning Arcade • Local manual-test authentication</footer>
+  <script>
+    const ACCOUNTS_KEY='richmackStudentAccountsV1';
+    const $=s=>document.querySelector(s);
+    function accounts(){
+      try { const x=JSON.parse(localStorage.getItem(ACCOUNTS_KEY)||'[]'); return Array.isArray(x)?x:[]; }
+      catch { return []; }
+    }
+    function saveAccounts(rows){localStorage.setItem(ACCOUNTS_KEY,JSON.stringify(rows))}
+    async function digest(value){
+      const bytes=new TextEncoder().encode(value);
+      const hash=await crypto.subtle.digest('SHA-256',bytes);
+      return [...new Uint8Array(hash)].map(b=>b.toString(16).padStart(2,'0')).join('');
+    }
+    function startStudent(account){
+      localStorage.setItem('richmackActiveStudent',account.displayName);
+      sessionStorage.setItem('richmackStudentAuth','1');
+      sessionStorage.setItem('richmackStudentUsername',account.username);
+      location.href='arcade.html';
+    }
+    $('#studentLogin').addEventListener('submit',async e=>{
+      e.preventDefault(); $('#loginMsg').textContent='';
+      const username=$('#loginUsername').value.trim().toLowerCase();
+      const passwordHash=await digest($('#loginPassword').value);
+      const account=accounts().find(a=>a.username===username && a.passwordHash===passwordHash);
+      if(!account){$('#loginMsg').textContent='Username or password is incorrect.';return}
+      startStudent(account);
+    });
+    $('#studentSignup').addEventListener('submit',async e=>{
+      e.preventDefault(); $('#signupMsg').textContent='';
+      const displayName=$('#displayName').value.trim();
+      const username=$('#signupUsername').value.trim().toLowerCase();
+      const password=$('#signupPassword').value;
+      const confirm=$('#signupConfirm').value;
+      if(password!==confirm){$('#signupMsg').textContent='Passwords do not match.';return}
+      const rows=accounts();
+      if(rows.some(a=>a.username===username)){$('#signupMsg').textContent='That username is already in use.';return}
+      const account={id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),displayName,username,passwordHash:await digest(password),createdAt:new Date().toISOString()};
+      rows.push(account); saveAccounts(rows);
+      let students=[]; try{students=JSON.parse(localStorage.getItem('richmackStudents')||'[]')}catch{}
+      if(!Array.isArray(students)) students=[];
+      if(!students.includes(displayName)) students.push(displayName);
+      localStorage.setItem('richmackStudents',JSON.stringify(students));
+      startStudent(account);
+    });
+  </script>
 </body>
 </html>
