@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="arcade.css" />
 </head>
 <body>
+  <a class="skip-link" href="#gameGrid">Skip to games</a>
   <div class="fog fog-a"></div><div class="fog fog-b"></div>
   <header class="topbar">
     <div class="brand">
@@ -35,19 +36,20 @@
       </div>
     </section>
 
-    <section class="controls" aria-label="Game filters">
-      <label class="search"><span>⌕</span><input id="search" placeholder="Search games..." autocomplete="off" /></label>
-      <div class="chips" id="chips">
-        <button class="chip active" data-filter="all">All</button>
-        <button class="chip" data-filter="horror">Horror</button>
-        <button class="chip" data-filter="math">Math</button>
-        <button class="chip" data-filter="spelling">Spelling</button>
-        <button class="chip" data-filter="adventure">Adventure</button>
+    <section class="controls" aria-label="Find and filter games">
+      <label class="search" for="search"><span aria-hidden="true">⌕</span><span class="sr-only">Search games</span><input id="search" type="search" placeholder="Search games..." autocomplete="off" aria-controls="gameGrid" /></label>
+      <div class="chips" id="chips" role="group" aria-label="Filter games by category">
+        <button class="chip active" data-filter="all" aria-pressed="true">All</button>
+        <button class="chip" data-filter="horror" aria-pressed="false">Horror</button>
+        <button class="chip" data-filter="math" aria-pressed="false">Math</button>
+        <button class="chip" data-filter="spelling" aria-pressed="false">Spelling</button>
+        <button class="chip" data-filter="adventure" aria-pressed="false">Adventure</button>
       </div>
     </section>
 
-    <section class="grid" id="gameGrid"></section>
-    <p class="empty" id="empty">No games match that search.</p>
+    <p class="sr-only" id="resultsStatus" role="status" aria-live="polite"></p>
+    <section class="grid" id="gameGrid" tabindex="-1" aria-label="Games"></section>
+    <p class="empty" id="empty" role="status">No games match that search.</p>
   </main>
 
   <footer>Richmack Learning Arcade • Local game library</footer>

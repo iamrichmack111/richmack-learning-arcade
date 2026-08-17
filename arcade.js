@@ -17,6 +17,7 @@ const games = [
 const grid=document.getElementById('gameGrid');
 const search=document.getElementById('search');
 const empty=document.getElementById('empty');
+const resultsStatus=document.getElementById('resultsStatus');
 let active='all';
 
 function card(g){
@@ -31,13 +32,39 @@ function card(g){
 }
 function render(){
   const q=search.value.trim().toLowerCase();
-  const filtered=games.filter(g => (active==='all' || g.tags.includes(active)) && (!q || g.title.toLowerCase().includes(q) || g.tags.some(t => t.includes(q)) || g.desc.toLowerCase().includes(q)));
+  const filtered=games.filter(g =>
+    (active==='all' || g.tags.includes(active)) &&
+    (!q ||
+      g.title.toLowerCase().includes(q) ||
+      g.tags.some(t => t.includes(q)) ||
+      g.desc.toLowerCase().includes(q))
+  );
+
   grid.innerHTML=filtered.map(card).join('');
   empty.style.display=filtered.length?'none':'block';
   document.getElementById('gameCount').textContent=games.length;
+
+  if(resultsStatus){
+    const filterText=active==='all'?'all categories':active;
+    const queryText=q?` matching "${search.value.trim()}"`:'';
+    resultsStatus.textContent=
+      `${filtered.length} ${filtered.length===1?'game':'games'} shown in ${filterText}${queryText}.`;
+  }
 }
 search.addEventListener('input',render);
-document.getElementById('chips').addEventListener('click',e=>{if(!e.target.matches('.chip'))return;document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));e.target.classList.add('active');active=e.target.dataset.filter;render();});
+document.getElementById('chips').addEventListener('click',e=>{
+  if(!e.target.matches('.chip')) return;
+
+  document.querySelectorAll('.chip').forEach(chip=>{
+    chip.classList.remove('active');
+    chip.setAttribute('aria-pressed','false');
+  });
+
+  e.target.classList.add('active');
+  e.target.setAttribute('aria-pressed','true');
+  active=e.target.dataset.filter;
+  render();
+});
 document.getElementById('randomBtn').addEventListener('click',()=>{const g=games[Math.floor(Math.random()*games.length)];location.href=`games/${g.slug}/index.html`;});
 render();
 
