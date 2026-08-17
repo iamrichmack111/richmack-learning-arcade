@@ -1,0 +1,21 @@
+{
+  "name": "richmack-learning-arcade",
+  "version": "1.1.0",
+  "private": true,
+  "description": "A local educational arcade containing 15 browser games in one launcher.",
+  "scripts": {
+    "start": "python3 arcade.py",
+    "validate": "python3 scripts/validate_arcade.py",
+    "test": "python3 scripts/validate_arcade.py"
+  },
+  "keywords": [
+    "education",
+    "educational-games",
+    "browser-games",
+    "math-games",
+    "spelling-games",
+    "offline-first",
+    "javascript"
+  ],
+  "license": "UNLICENSED"
+}

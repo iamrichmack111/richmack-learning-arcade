@@ -1,0 +1,49 @@
+name: Feature request
+description: Propose an improvement to the arcade, launcher, or shared experience.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Arcade launcher
+        - Shared game behavior
+        - Accessibility
+        - Parent/teacher workflow
+        - Packaging/install
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or opportunity
+      description: What should become easier, clearer, safer, or more useful?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the behavior you want, not just the implementation.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      placeholder: |
+        - [ ] ...
+        - [ ] ...
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Suggested priority
+      options:
+        - Nice to have
+        - Useful
+        - Important
+        - Blocks normal use

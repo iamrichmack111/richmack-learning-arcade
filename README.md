@@ -1,26 +1,54 @@
 # Richmack Learning Arcade
 
-A local educational arcade containing 15 math, spelling, horror, adventure, and learning games.
+A local-first educational arcade containing 15 browser games in one launcher. The collection combines math, spelling, calendars, fractions, and other learning tasks with horror, adventure, racing, survival, and arcade-style game loops.
 
 ## Features
 
 - 15 educational games in one launcher
-- Horror, Math, Spelling, and Adventure categories
-- Search games
-- Random game launcher
-- Local web server
-- Automatically finds an available port
+- Horror, Math, Spelling, and Adventure filters
+- Search and random-game launch
+- Local Python web server that automatically selects an available port
+- No application build step or third-party runtime dependency
 - Linux / Pop!_OS desktop launcher installer
+- macOS launcher support
+- Automated repository integrity validation
+- Structured GitHub issue templates for bugs, features, and new games
 
-## Run
+## Quick start
 
-    chmod +x start.sh
-    ./start.sh
+```bash
+chmod +x start.sh
+./start.sh
+```
 
-## Install Desktop Launcher
+Or run the server directly:
 
-    chmod +x install-linux-desktop.sh
-    ./install-linux-desktop.sh
+```bash
+python3 arcade.py
+```
+
+The server binds to `127.0.0.1`, chooses an available port, and opens the arcade in your default browser.
+
+## Validate the arcade
+
+```bash
+python3 scripts/validate_arcade.py
+```
+
+If Node/npm is installed, the same check is available through:
+
+```bash
+npm test
+```
+
+The validator confirms that every game registered in `arcade.js` has a game directory, `index.html`, and README, and that registered slugs and titles are unique.
+
+## Desktop launcher on Linux
+
+```bash
+chmod +x install-linux-desktop.sh
+./install-linux-desktop.sh
+```
 
 ## Games
 
@@ -39,5 +67,26 @@ A local educational arcade containing 15 math, spelling, horror, adventure, and 
 - Color Current 3D
 - Clownword Desert
 - Laundry Night
+
+## Project structure
+
+```text
+.
+├── arcade.py                  # Local launcher server
+├── arcade.js                  # Game registry and launcher behavior
+├── arcade.css                 # Arcade launcher styling
+├── index.html                 # Arcade launcher UI
+├── games/                     # Self-contained games
+├── scripts/validate_arcade.py # Integrity checks
+├── .github/                   # Issue forms, PR template, CI workflow
+├── docs/ROADMAP.md            # Planned improvements
+├── CONTRIBUTING.md
+├── CHANGELOG.md
+└── package.json               # Standard start/test commands; no npm deps
+```
+
+## Project workflow
+
+Bugs, feature ideas, and new-game proposals have dedicated GitHub issue forms. Before a pull request, run the validator and manually test every affected game. See [CONTRIBUTING.md](CONTRIBUTING.md) and [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Created by Richmack

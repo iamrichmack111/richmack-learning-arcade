@@ -1,0 +1,51 @@
+name: Bug report
+description: Report a broken game, launcher problem, or reproducible defect.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Arcade launcher
+        - Game
+        - Linux launcher
+        - macOS launcher
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: game
+    attributes:
+      label: Game
+      description: If this affects one game, name it here.
+      placeholder: Math Heist
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Describe the problem and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Run ./start.sh
+        2. Open ...
+        3. Click ...
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: macOS 14.5 / Chrome, Pop!_OS / Firefox, etc.
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional context
+      description: Logs, screenshots, console errors, or anything else that helps.

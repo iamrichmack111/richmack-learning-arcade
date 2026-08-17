@@ -1,0 +1,44 @@
+name: New game proposal
+description: Propose a new educational game for the arcade.
+title: "[Game]: "
+labels: ["game", "enhancement"]
+body:
+  - type: input
+    id: title
+    attributes:
+      label: Working title
+      placeholder: Haunted Geometry Lab
+    validations:
+      required: true
+  - type: dropdown
+    id: subject
+    attributes:
+      label: Learning focus
+      multiple: true
+      options:
+        - Math
+        - Spelling
+        - Reading
+        - Science
+        - Social studies
+        - Calendar/time
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: grade
+    attributes:
+      label: Target grade or level
+      placeholder: Grade 6-7
+  - type: textarea
+    id: loop
+    attributes:
+      label: Core game loop
+      description: What does the player repeatedly do, and how does learning drive progress?
+    validations:
+      required: true
+  - type: textarea
+    id: success
+    attributes:
+      label: Definition of done
+      description: What must work before this game belongs in the arcade?
