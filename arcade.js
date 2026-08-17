@@ -20,35 +20,114 @@ const empty=document.getElementById('empty');
 const resultsStatus=document.getElementById('resultsStatus');
 let active='all';
 
+const FAVORITES_KEY='richmack_arcade_favorites_v1';
+const RECENT_KEY='richmack_arcade_recent_v1';
+
+function readList(key){
+  try{
+    const value=JSON.parse(localStorage.getItem(key)||'[]');
+    return Array.isArray(value)?value:[];
+  }catch{
+    return [];
+  }
+}
+
+function writeList(key,value){
+  try{
+    localStorage.setItem(key,JSON.stringify(value));
+  }catch{}
+}
+
+function favoriteIds(){
+  return readList(FAVORITES_KEY);
+}
+
+function recentIds(){
+  return readList(RECENT_KEY);
+}
+
+function toggleFavorite(slug){
+  const current=favoriteIds();
+  const next=current.includes(slug)
+    ? current.filter(id=>id!==slug)
+    : [slug,...current];
+
+  writeList(FAVORITES_KEY,next);
+  render();
+}
+
+function recordRecent(slug){
+  const next=[slug,...recentIds().filter(id=>id!==slug)].slice(0,8);
+  writeList(RECENT_KEY,next);
+}
+
 function card(g){
   const url=`games/${g.slug}/index.html`;
-  const tags=g.tags.map(t=>`<span class="tag">${t}</span>`).join('');
-  const imageStyle=g.image?` style="background-image:url('${g.image}')"`:'';
-  return `<article class="card" data-tags="${g.tags.join(' ')}" data-title="${g.title.toLowerCase()}">
-    <div class="visual ${g.image?'has-image':''}" data-mark="${g.mark}" style="--c1:${g.colors[0]};--c2:${g.colors[1]};${g.image?`background-image:url('${g.image}');`:''}"></div>
-    <div class="card-body"><div class="meta">${tags}</div><h3>${g.title}</h3><p>${g.desc}</p>
-      <div class="actions"><a class="play" href="${url}">▶ PLAY</a><a class="newtab" href="${url}" target="_blank" rel="noopener" title="Open in new tab">↗</a></div>
-    </div></article>`;
+  const tags=g.tags.map(t=>`<span class="tag">${t}</span>`).join("");
+  const isFavorite=favoriteIds().includes(g.slug);
+
+  return `<article class="card" data-tags="${g.tags.join(" ")}" data-title="${g.title.toLowerCase()}">
+    <div class="visual ${g.image?"has-image":""}" data-mark="${g.mark}" style="--c1:${g.colors[0]};--c2:${g.colors[1]};${g.image?`background-image:url('${g.image}');`:""}">
+      <button class="favorite" type="button" data-favorite="${g.slug}" aria-pressed="${isFavorite}" aria-label="${isFavorite?"Remove":"Add"} ${g.title} ${isFavorite?"from":"to"} favorites" title="${isFavorite?"Remove from favorites":"Add to favorites"}">${isFavorite?"★":"☆"}</button>
+    </div>
+    <div class="card-body">
+      <div class="meta">${tags}</div>
+      <h3>${g.title}</h3>
+      <p>${g.desc}</p>
+      <div class="actions">
+        <a class="play" data-play="${g.slug}" href="${url}">▶ PLAY</a>
+        <a class="newtab" data-play="${g.slug}" href="${url}" target="_blank" rel="noopener" title="Open in new tab">↗</a>
+      </div>
+    </div>
+  </article>`;
 }
 function render(){
   const q=search.value.trim().toLowerCase();
-  const filtered=games.filter(g =>
-    (active==='all' || g.tags.includes(active)) &&
-    (!q ||
-      g.title.toLowerCase().includes(q) ||
-      g.tags.some(t => t.includes(q)) ||
-      g.desc.toLowerCase().includes(q))
-  );
+  const favorites=favoriteIds();
+  const recent=recentIds();
 
-  grid.innerHTML=filtered.map(card).join('');
-  empty.style.display=filtered.length?'none':'block';
-  document.getElementById('gameCount').textContent=games.length;
+  let filtered=games.filter(g=>{
+    let matchesFilter=true;
+
+    if(active==="favorites"){
+      matchesFilter=favorites.includes(g.slug);
+    }else if(active==="recent"){
+      matchesFilter=recent.includes(g.slug);
+    }else if(active!=="all"){
+      matchesFilter=g.tags.includes(active);
+    }
+
+    const matchesSearch=
+      !q ||
+      g.title.toLowerCase().includes(q) ||
+      g.tags.some(t=>t.includes(q)) ||
+      g.desc.toLowerCase().includes(q);
+
+    return matchesFilter && matchesSearch;
+  });
+
+  if(active==="recent"){
+    const order=new Map(recent.map((slug,index)=>[slug,index]));
+    filtered.sort(
+      (a,b)=>(order.get(a.slug)??999)-(order.get(b.slug)??999)
+    );
+  }
+
+  grid.innerHTML=filtered.map(card).join("");
+  empty.style.display=filtered.length?"none":"block";
+  document.getElementById("gameCount").textContent=games.length;
 
   if(resultsStatus){
-    const filterText=active==='all'?'all categories':active;
-    const queryText=q?` matching "${search.value.trim()}"`:'';
+    const filterText=
+      active==="all" ? "all categories" :
+      active==="favorites" ? "favorites" :
+      active==="recent" ? "recently played" :
+      active;
+
+    const queryText=q?` matching "${search.value.trim()}"`:"";
+
     resultsStatus.textContent=
-      `${filtered.length} ${filtered.length===1?'game':'games'} shown in ${filterText}${queryText}.`;
+      `${filtered.length} ${filtered.length===1?"game":"games"} shown in ${filterText}${queryText}.`;
   }
 }
 search.addEventListener('input',render);
@@ -65,7 +144,27 @@ document.getElementById('chips').addEventListener('click',e=>{
   active=e.target.dataset.filter;
   render();
 });
-document.getElementById('randomBtn').addEventListener('click',()=>{const g=games[Math.floor(Math.random()*games.length)];location.href=`games/${g.slug}/index.html`;});
+grid.addEventListener('click',e=>{
+  const favorite=e.target.closest('[data-favorite]');
+
+  if(favorite){
+    e.preventDefault();
+    toggleFavorite(favorite.dataset.favorite);
+    return;
+  }
+
+  const play=e.target.closest('[data-play]');
+
+  if(play){
+    recordRecent(play.dataset.play);
+  }
+});
+
+document.getElementById('randomBtn').addEventListener('click',()=>{
+  const g=games[Math.floor(Math.random()*games.length)];
+  recordRecent(g.slug);
+  location.href=`games/${g.slug}/index.html`;
+});
 render();
 
 // Authenticated student identity for time/grade aggregation.
