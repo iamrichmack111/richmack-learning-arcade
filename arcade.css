@@ -172,3 +172,6 @@
 .favorite:hover{background:rgba(20,22,28,.95)}
 .favorite[aria-pressed="true"]{background:rgba(80,60,10,.88);border-color:rgba(255,217,90,.65)}
 .favorite:focus-visible{outline:3px solid var(--accent2);outline-offset:3px}
+
+/* Learning metadata */
+.learning-meta{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}.learning-meta span{display:inline-flex;align-items:center;min-height:24px;padding:3px 8px;border:1px solid rgba(255,255,255,.13);border-radius:999px;background:rgba(255,255,255,.05);font-size:.75rem;font-weight:800;letter-spacing:.02em}.learning-meta .subject{color:var(--accent2)}.learning-meta .difficulty{color:var(--accent)}
